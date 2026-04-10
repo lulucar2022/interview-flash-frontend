@@ -12,9 +12,14 @@
       <div class="question-card">
         <div class="question-header">
           <h2>{{ currentQuestion.title }}</h2>
-          <el-tag :type="getDifficultyType(currentQuestion.difficulty)" size="small">
-            {{ getDifficultyText(currentQuestion.difficulty) }}
-          </el-tag>
+          <div class="question-meta">
+            <el-tag :type="getTypeTag(currentQuestion.type)" size="small">
+              {{ getTypeText(currentQuestion.type) }}
+            </el-tag>
+            <el-tag :type="getDifficultyType(currentQuestion.difficulty)" size="small">
+              {{ getDifficultyText(currentQuestion.difficulty) }}
+            </el-tag>
+          </div>
         </div>
         <div class="question-body">
           <p>{{ currentQuestion.content }}</p>
@@ -23,12 +28,74 @@
       
       <div class="answer-card">
         <h3>你的答案</h3>
-        <el-input
-          v-model="answers[currentQuestion.id]"
-          type="textarea"
-          :rows="4"
-          placeholder="请输入答案..."
-        />
+        
+        <!-- 单选题 -->
+        <div v-if="currentQuestion.type === 'SINGLE_CHOICE'" class="answer-options">
+          <el-radio-group v-model="answers[currentQuestion.id]">
+            <el-radio
+              v-for="(option, index) in parseOptions(currentQuestion.options)"
+              :key="index"
+              :label="option.label"
+              class="option-item"
+            >
+              <span class="option-label">{{ option.label }}.</span>
+              <span class="option-content">{{ option.content }}</span>
+            </el-radio>
+          </el-radio-group>
+        </div>
+        
+        <!-- 多选题 -->
+        <div v-else-if="currentQuestion.type === 'MULTIPLE_CHOICE'" class="answer-options">
+          <el-checkbox-group v-model="multiAnswers[currentQuestion.id]">
+            <el-checkbox
+              v-for="(option, index) in parseOptions(currentQuestion.options)"
+              :key="index"
+              :label="option.label"
+              class="option-item"
+            >
+              <span class="option-label">{{ option.label }}.</span>
+              <span class="option-content">{{ option.content }}</span>
+            </el-checkbox>
+          </el-checkbox-group>
+        </div>
+        
+        <!-- 判断题 -->
+        <div v-else-if="currentQuestion.type === 'TRUE_FALSE'" class="answer-options">
+          <el-radio-group v-model="answers[currentQuestion.id]" class="true-false-group">
+            <el-radio label="TRUE" class="tf-option">正确</el-radio>
+            <el-radio label="FALSE" class="tf-option">错误</el-radio>
+          </el-radio-group>
+        </div>
+        
+        <!-- 填空题 / 简答题 -->
+        <div v-else-if="currentQuestion.type === 'FILL_BLANK' || currentQuestion.type === 'SHORT_ANSWER'" class="answer-input">
+          <el-input
+            v-model="answers[currentQuestion.id]"
+            type="textarea"
+            :rows="currentQuestion.type === 'SHORT_ANSWER' ? 6 : 3"
+            :placeholder="currentQuestion.type === 'FILL_BLANK' ? '请填写答案...' : '请输入你的回答...'"
+          />
+        </div>
+        
+        <!-- 编程题 / 情景分析题 -->
+        <div v-else-if="currentQuestion.type === 'CODING' || currentQuestion.type === 'SCENARIO'" class="answer-input">
+          <el-input
+            v-model="answers[currentQuestion.id]"
+            type="textarea"
+            :rows="8"
+            placeholder="请输入你的代码或分析..."
+          />
+        </div>
+        
+        <!-- 其他题型默认用文本框 -->
+        <div v-else class="answer-input">
+          <el-input
+            v-model="answers[currentQuestion.id]"
+            type="textarea"
+            :rows="4"
+            placeholder="请输入答案..."
+          />
+        </div>
         
         <div class="answer-check">
           <span>回答是否正确：</span>
@@ -62,7 +129,20 @@
       
       <div v-if="showAnswer" class="answer-preview">
         <h4>参考答案</h4>
-        <div class="answer-content">{{ currentQuestion.answer || '暂无参考答案' }}</div>
+        <div class="answer-content">
+          <template v-if="currentQuestion.type === 'SINGLE_CHOICE' || currentQuestion.type === 'MULTIPLE_CHOICE'">
+            <div v-for="(opt, idx) in parseOptions(currentQuestion.options)" :key="idx" class="correct-option" :class="{ correct: isCorrectOption(opt.label, currentQuestion.answer) }">
+              {{ opt.label }}. {{ opt.content }}
+              <el-icon v-if="isCorrectOption(opt.label, currentQuestion.answer)" class="check-icon"><CircleCheckFilled /></el-icon>
+            </div>
+          </template>
+          <template v-else-if="currentQuestion.type === 'TRUE_FALSE'">
+            {{ currentQuestion.answer === 'TRUE' ? '正确' : '错误' }}
+          </template>
+          <template v-else>
+            {{ currentQuestion.answer || '暂无参考答案' }}
+          </template>
+        </div>
       </div>
     </div>
     
@@ -165,6 +245,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { questionApi, progressApi } from '@/api'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
+import { CircleCheckFilled } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -173,6 +254,7 @@ const userStore = useUserStore()
 const questions = ref([])
 const currentIndex = ref(0)
 const answers = ref({})
+const multiAnswers = ref({})
 const answerCorrect = ref({})
 const results = ref({})
 const showAnswer = ref(false)
@@ -192,6 +274,21 @@ const progressPercent = computed(() => {
   const answered = Object.keys(results.value).length
   return Math.round((answered / questions.value.length) * 100)
 })
+
+const parseOptions = (optionsStr) => {
+  if (!optionsStr) return []
+  try {
+    return JSON.parse(optionsStr)
+  } catch {
+    return []
+  }
+}
+
+const isCorrectOption = (label, answer) => {
+  if (!answer) return false
+  const answers = answer.split(',').map(a => a.trim())
+  return answers.includes(label)
+}
 
 const loadQuestions = async () => {
   try {
@@ -232,7 +329,7 @@ const handleSubmitAnswer = async () => {
   const answer = answers.value[currentQuestion.value.id]
   const isCorrect = answerCorrect.value[currentQuestion.value.id]
   
-  if (!answer) {
+  if (answer === undefined || answer === '' || answer === null) {
     ElMessage.warning('请输入答案后再提交')
     return
   }
@@ -274,6 +371,8 @@ const handleFinish = () => {
 const restartPractice = () => {
   showFinishDialog.value = false
   answers.value = {}
+  multiAnswers.value = {}
+  answerCorrect.value = {}
   results.value = {}
   currentIndex.value = 0
 }
@@ -299,13 +398,39 @@ const toggleShowAnswer = () => {
   showAnswer.value = !showAnswer.value
 }
 
+const getTypeText = (type) => {
+  const texts = {
+    SINGLE_CHOICE: '单选题',
+    MULTIPLE_CHOICE: '多选题',
+    TRUE_FALSE: '判断题',
+    FILL_BLANK: '填空题',
+    SHORT_ANSWER: '简答题',
+    CODING: '编程题',
+    SCENARIO: '情景分析题'
+  }
+  return texts[type] || type
+}
+
+const getTypeTag = (type) => {
+  const tags = {
+    SINGLE_CHOICE: 'primary',
+    MULTIPLE_CHOICE: 'success',
+    TRUE_FALSE: 'warning',
+    FILL_BLANK: 'info',
+    SHORT_ANSWER: 'info',
+    CODING: 'danger',
+    SCENARIO: 'danger'
+  }
+  return tags[type] || 'info'
+}
+
 const getDifficultyType = (difficulty) => {
-  const types = { LOW: 'success', MEDIUM: 'warning', HIGH: 'danger' }
+  const types = { EASY: 'success', MEDIUM: 'warning', HARD: 'danger' }
   return types[difficulty] || 'info'
 }
 
 const getDifficultyText = (difficulty) => {
-  const texts = { LOW: '简单', MEDIUM: '中等', HIGH: '困难' }
+  const texts = { EASY: '简单', MEDIUM: '中等', HARD: '困难' }
   return texts[difficulty] || difficulty
 }
 
@@ -344,28 +469,28 @@ onMounted(() => {
 
 .practice-header h1 {
   font-size: 24px;
-  color: #303133;
+  color: var(--color-text-primary);
 }
 
 .progress-info {
   display: flex;
   align-items: center;
   gap: 16px;
-  color: #606266;
+  color: var(--color-text-secondary);
 }
 
 .practice-content {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
   padding: 32px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 1px var(--color-ring);
   margin-bottom: 24px;
 }
 
 .question-card {
   margin-bottom: 24px;
   padding-bottom: 24px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .question-header {
@@ -377,35 +502,93 @@ onMounted(() => {
 
 .question-header h2 {
   font-size: 20px;
-  color: #303133;
+  color: var(--color-text-primary);
   flex: 1;
 }
 
+.question-meta {
+  display: flex;
+  gap: 8px;
+}
+
 .question-body p {
-  color: #606266;
+  color: var(--color-text-secondary);
   line-height: 1.8;
   font-size: 15px;
 }
 
 .answer-card h3 {
   font-size: 16px;
-  color: #303133;
-  margin-bottom: 12px;
+  color: var(--color-text-primary);
+  margin-bottom: 16px;
+}
+
+.answer-options {
+  margin-bottom: 20px;
+}
+
+.option-item {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.option-item:hover {
+  border-color: var(--color-interactive);
+  background: #f8f9ff;
+}
+
+.option-item.is-checked {
+  border-color: var(--color-interactive);
+  background: #f0f5ff;
+}
+
+.option-label {
+  font-weight: 600;
+  margin-right: 8px;
+  color: var(--color-interactive);
+}
+
+.option-content {
+  color: var(--color-text-primary);
+}
+
+.true-false-group {
+  display: flex;
+  gap: 24px;
+}
+
+.tf-option {
+  padding: 16px 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.tf-option:hover {
+  border-color: var(--color-interactive);
+}
+
+.answer-input {
+  margin-bottom: 20px;
 }
 
 .answer-check {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 16px;
+  margin: 20px 0;
   padding: 12px 16px;
-  background: #f5f7fa;
-  border-radius: 8px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
 }
 
 .answer-check span {
-  color: #606266;
-  font-size: 14px;
+  color: var(--color-text-secondary);
 }
 
 .answer-actions {
@@ -426,28 +609,48 @@ onMounted(() => {
   margin-top: 24px;
   padding: 16px;
   background: #f0f9eb;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 .answer-preview h4 {
-  color: #67C23A;
-  margin-bottom: 8px;
+  color: var(--color-success);
+  margin-bottom: 12px;
 }
 
 .answer-content {
-  color: #606266;
+  color: var(--color-text-secondary);
   line-height: 1.8;
   white-space: pre-wrap;
 }
 
-.navigation-bar {
+.correct-option {
+  padding: 8px 12px;
+  margin-bottom: 8px;
   background: #fff;
-  border-radius: 12px;
+  border-radius: 4px;
+  position: relative;
+}
+
+.correct-option.correct {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.check-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.navigation-bar {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 1px var(--color-ring);
 }
 
 .question-dots {
@@ -462,22 +665,22 @@ onMounted(() => {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #dcdfe6;
+  background: var(--color-border);
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .dot:hover {
-  background: #409EFF;
+  background: var(--color-interactive);
 }
 
 .dot.active {
-  background: #409EFF;
+  background: var(--color-interactive);
   transform: scale(1.2);
 }
 
 .dot.correct {
-  background: #67C23A;
+  background: var(--color-success);
 }
 
 .dot.wrong {
@@ -485,8 +688,8 @@ onMounted(() => {
 }
 
 .empty-state {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   padding: 60px;
   text-align: center;
 }
@@ -502,7 +705,7 @@ onMounted(() => {
 }
 
 .result-icon.correct {
-  color: #67C23A;
+  color: var(--color-success);
 }
 
 .result-icon.wrong {
@@ -511,7 +714,7 @@ onMounted(() => {
 
 .result-text {
   font-size: 18px;
-  color: #303133;
+  color: var(--color-text-primary);
   margin-bottom: 16px;
 }
 
@@ -519,7 +722,7 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   gap: 24px;
-  color: #606266;
+  color: var(--color-text-secondary);
 }
 
 .finish-dialog-content {
@@ -542,7 +745,7 @@ onMounted(() => {
   display: block;
   font-size: 36px;
   font-weight: bold;
-  color: #67C23A;
+  color: var(--color-success);
 }
 
 .finish-stats .stat-value.danger {
@@ -551,12 +754,12 @@ onMounted(() => {
 
 .finish-stats .stat-label {
   font-size: 14px;
-  color: #909399;
+  color: var(--color-text-secondary);
 }
 
 .finish-rate {
   font-size: 20px;
-  color: #303133;
+  color: var(--color-text-primary);
   font-weight: 600;
 }
 </style>
