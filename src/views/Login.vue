@@ -214,41 +214,42 @@ const handleRegister = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-bg-secondary);
 }
 
 .login-box {
   width: 400px;
   padding: 40px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 0 1px var(--color-ring);
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: var(--spacing-xl);
 }
 
 .logo-icon {
   font-size: 48px;
   display: block;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
 }
 
 .login-header h1 {
   font-size: 24px;
-  color: #303133;
-  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
 }
 
 .login-header p {
-  color: #909399;
+  color: var(--color-text-secondary);
   font-size: 14px;
 }
 
 .login-form {
-  margin-top: 24px;
+  margin-top: var(--spacing-lg);
 }
 
 .form-options {
@@ -262,12 +263,14 @@ const handleRegister = async () => {
   width: 100%;
   height: 44px;
   font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .login-footer {
   text-align: center;
-  margin-top: 24px;
-  color: #909399;
+  margin-top: var(--spacing-lg);
+  color: var(--color-text-secondary);
   font-size: 14px;
 }
 </style>

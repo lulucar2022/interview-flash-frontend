@@ -23,6 +23,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Header from '@/components/Header.vue'
 import { useAppStore } from '@/stores/app'
+import '@/styles/variables.css'
 
 const route = useRoute()
 const appStore = useAppStore()
@@ -31,23 +32,14 @@ const showHeader = computed(() => route.path !== '/login')
 </script>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background: #f5f7fa;
-}
+@import '@/styles/variables.css';
 
 .layout-container {
   min-height: 100vh;
 }
 
 .el-main {
-  padding: 24px;
+  padding: var(--spacing-lg);
 }
 
 .el-main.no-padding {
@@ -67,28 +59,23 @@ a {
 .page-title {
   font-size: 24px;
   font-weight: 600;
-  color: #303133;
-  margin-bottom: 24px;
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+  letter-spacing: -0.72px;
 }
 
 .card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  box-shadow: 0 0 0 1px var(--color-ring);
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .text-center {
@@ -96,7 +83,7 @@ a {
 }
 
 .text-muted {
-  color: #909399;
+  color: var(--color-text-secondary);
   font-size: 14px;
 }
 </style>

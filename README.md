@@ -2,6 +2,17 @@
 
 基于 Vue3 + Vite + Pinia + Vue Router + Element Plus + Axios 构建的面试刷题系统前端项目。
 
+## 设计风格
+
+参考 **Miro** 设计风格，简洁、现代化：
+
+- **主色调**: Near Black (`#1c1c1e`) + White (`#ffffff`)
+- **交互色**: Blue 450 (`#5b76fe`)
+- **成功色**: Success Green (`#00b473`)
+- **边框**: Ring shadow 风格 (`rgb(224,226,232) 0px 0px 0px 1px`)
+- **圆角**: 8px-24px 范围
+- **字体**: Noto Sans SC / PingFang SC
+
 ## 技术栈
 
 | 技术 | 版本 | 说明 |
