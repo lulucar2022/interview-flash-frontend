@@ -59,3 +59,13 @@ export const progressApi = {
   
   resetProgress: (params) => request.delete('/progress/reset', { params })
 }
+
+export const wrongApi = {
+  getList: (params) => request.get('/wrong', { params }),
+  
+  getCount: (params) => request.get('/wrong/count', { params }),
+  
+  recordAnswer: (params) => request.post('/wrong/record', null, { params }),
+  
+  removeWrong: (params) => request.delete('/wrong', { params })
+}

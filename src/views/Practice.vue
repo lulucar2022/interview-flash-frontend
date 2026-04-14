@@ -97,13 +97,13 @@
           />
         </div>
         
-        <div class="answer-check">
+        <!-- <div class="answer-check">
           <span>回答是否正确：</span>
           <el-radio-group v-model="answerCorrect[currentQuestion.id]">
             <el-radio :label="true">正确</el-radio>
             <el-radio :label="false">错误</el-radio>
           </el-radio-group>
-        </div>
+        </div> -->
         
         <div class="answer-actions">
           <el-button @click="previousQuestion" :disabled="currentIndex === 0">
