@@ -33,6 +33,8 @@ export const questionApi = {
   
   getById: (id) => request.get(`/questions/${id}`),
   
+  getCount: () => request.get('/questions/count'),
+  
   getRandom: (params) => request.get('/questions/random', { params }),
   
   search: (params) => request.get('/questions/search', { params }),

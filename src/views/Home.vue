@@ -122,15 +122,17 @@ const statistics = ref({})
 
 const loadData = async () => {
   try {
-    const [categoriesRes, questionsRes, statsRes] = await Promise.all([
+    const [categoriesRes, questionsRes, statsRes, totalRes] = await Promise.all([
       categoryApi.getAll(),
       questionApi.getList({ page: 0, size: 5 }),
-      progressApi.getStatistics({ userId: userStore.user.id })
+      progressApi.getStatistics({ userId: userStore.user.id }),
+      questionApi.getCount()
     ])
     
     categories.value = categoriesRes.data || []
     hotQuestions.value = questionsRes.data?.content || []
     statistics.value = statsRes.data || {}
+    statistics.value.totalQuestions = totalRes.data || 0
   } catch (error) {
     console.error('加载数据失败', error)
   }
