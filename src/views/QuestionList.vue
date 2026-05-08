@@ -3,19 +3,25 @@
     <div class="page-header">
       <h1 class="page-title">题库列表</h1>
       <div class="filters">
-        <el-select v-model="selectedCategory" placeholder="选择分类" clearable @change="handleFilterChange">
-          <el-option
-            v-for="cat in categories"
-            :key="cat.id"
-            :label="cat.name"
-            :value="cat.id"
-          />
-        </el-select>
-        <el-select v-model="selectedDifficulty" placeholder="选择难度" clearable @change="handleFilterChange">
-          <el-option label="简单" value="LOW" />
-          <el-option label="中等" value="MEDIUM" />
-          <el-option label="困难" value="HIGH" />
-        </el-select>
+        <div class="filter-item">
+          <label class="filter-label">分类</label>
+          <el-select v-model="selectedCategory" placeholder="选择分类" clearable @change="handleFilterChange">
+            <el-option
+              v-for="cat in categories"
+              :key="cat.id"
+              :label="cat.name"
+              :value="cat.id"
+            />
+          </el-select>
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">难度</label>
+          <el-select v-model="selectedDifficulty" placeholder="选择难度" clearable @change="handleFilterChange">
+            <el-option label="简单" value="LOW" />
+            <el-option label="中等" value="MEDIUM" />
+            <el-option label="困难" value="HIGH" />
+          </el-select>
+        </div>
       </div>
     </div>
     
@@ -139,18 +145,17 @@ const goToPractice = (id) => {
 }
 
 const getDifficultyType = (difficulty) => {
-  const types = { LOW: 'success', MEDIUM: 'warning', HIGH: 'danger' }
+  const types = { EASY: 'success', MEDIUM: 'warning', HIGH: 'danger' }
   return types[difficulty] || 'info'
 }
 
 const getDifficultyText = (difficulty) => {
-  const texts = { LOW: '简单', MEDIUM: '中等', HIGH: '困难' }
+  const texts = { EASY: '简单', MEDIUM: '中等', HIGH: '困难' }
   return texts[difficulty] || difficulty
 }
 
 onMounted(() => {
-  loadCategories()
-  loadQuestions()
+  loadCategories().then(() => loadQuestions())
 })
 </script>
 
@@ -169,6 +174,20 @@ onMounted(() => {
 .filters {
   display: flex;
   gap: 12px;
+  align-items: center;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-label {
+  font-size: 14px;
+  color: #606266;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .question-grid {
