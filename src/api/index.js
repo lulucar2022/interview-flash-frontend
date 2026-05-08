@@ -39,6 +39,8 @@ export const questionApi = {
   
   getRandom: (params) => request.get('/questions/random', { params }),
   
+  getRandomBatch: (params) => request.get('/questions/random/batch', { params }),
+  
   search: (params) => request.get('/questions/search', { params }),
   
   create: (data) => request.post('/questions', data),

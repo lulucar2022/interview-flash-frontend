@@ -292,8 +292,8 @@ const isCorrectOption = (label, answer) => {
 
 const loadQuestions = async () => {
   try {
-    const res = await questionApi.getList({ page: 0, size: 20 })
-    questions.value = res.data?.content || []
+    const res = await questionApi.getRandomBatch({ userId: userStore.user.id, size: 20 })
+    questions.value = res.data || []
     
     if (route.query.questionId) {
       const index = questions.value.findIndex(q => q.id === parseInt(route.query.questionId))
