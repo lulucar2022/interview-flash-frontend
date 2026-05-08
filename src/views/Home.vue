@@ -85,7 +85,7 @@
             >
               <div class="question-title">{{ question.title }}</div>
               <div class="question-meta">
-                <el-tag size="small" type="info">{{ question.difficulty }}</el-tag>
+                <el-tag size="small" type="info">{{ getDifficultyText(question.difficulty) }}</el-tag>
               </div>
             </div>
             <div v-if="hotQuestions.length === 0" class="empty-text">
@@ -144,6 +144,11 @@ const getCategoryIcon = (name) => {
     '算法': '🧮', '网络': '🌍', '操作系统': '💻', '系统设计': '🏗️'
   }
   return icons[name] || '📖'
+}
+
+const getDifficultyText = (difficulty) => {
+  const texts = { EASY: '简单', MEDIUM: '中等', HARD: '困难' }
+  return texts[difficulty] || difficulty
 }
 
 const goToQuestions = (categoryId) => {
