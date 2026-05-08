@@ -555,31 +555,48 @@ onMounted(() => {
   margin-bottom: 20px;
 }
 
-.option-item {
+.answer-options :deep(.el-radio), .answer-options :deep(.el-checkbox) {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
-  padding: 12px 16px;
-  margin-bottom: 8px;
+  margin-right: 0;
+  margin-bottom: 10px;
+  padding: 14px 18px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   transition: all 0.2s;
+  height: auto;
+  min-height: 48px;
 }
 
-.option-item:hover {
+.answer-options :deep(.el-radio:hover), .answer-options :deep(.el-checkbox:hover) {
   border-color: var(--color-interactive);
   background: #f8f9ff;
 }
 
-.option-item.is-checked {
+.answer-options :deep(.el-radio.is-checked), .answer-options :deep(.el-checkbox.is-checked) {
   border-color: var(--color-interactive);
   background: #f0f5ff;
 }
 
+.answer-options :deep(.el-radio__label), .answer-options :deep(.el-checkbox__label) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
 .option-label {
   font-weight: 600;
-  margin-right: 8px;
   color: var(--color-interactive);
+  flex-shrink: 0;
+}
+
+.option-content {
+  color: var(--color-text-primary);
 }
 
 .option-content {
