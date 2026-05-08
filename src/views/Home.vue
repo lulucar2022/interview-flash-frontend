@@ -122,15 +122,15 @@ const statistics = ref({})
 
 const loadData = async () => {
   try {
-    const [categoriesRes, questionsRes, statsRes, totalRes] = await Promise.all([
+    const [categoriesRes, hotRes, statsRes, totalRes] = await Promise.all([
       categoryApi.getAll(),
-      questionApi.getList({ page: 0, size: 5 }),
+      questionApi.getHot({ size: 5 }),
       progressApi.getStatistics({ userId: userStore.user.id }),
       questionApi.getCount()
     ])
     
     categories.value = categoriesRes.data || []
-    hotQuestions.value = questionsRes.data?.content || []
+    hotQuestions.value = hotRes.data || []
     statistics.value = statsRes.data || {}
     statistics.value.totalQuestions = totalRes.data || 0
   } catch (error) {
@@ -234,20 +234,6 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-}
-
-.category-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  color: #fff;
-  cursor: pointer;
-  transition: transform 0.3s;
-}
-
-.category-card:hover {
-  transform: translateY(-4px);
 }
 
 .category-icon {

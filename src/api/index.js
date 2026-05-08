@@ -35,6 +35,8 @@ export const questionApi = {
   
   getCount: () => request.get('/questions/count'),
   
+  getHot: (params) => request.get('/questions/hot', { params }),
+  
   getRandom: (params) => request.get('/questions/random', { params }),
   
   search: (params) => request.get('/questions/search', { params }),
