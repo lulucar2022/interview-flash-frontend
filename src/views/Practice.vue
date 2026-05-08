@@ -306,6 +306,27 @@ const loadQuestions = async () => {
   }
 }
 
+const submitCurrent = () => {
+  const q = currentQuestion.value
+  if (!q) return null
+
+  let answer = answers.value[q.id]
+  if (q.type === 'MULTIPLE_CHOICE') {
+    answer = (multiAnswers.value[q.id] || []).join(',')
+  }
+  if (answer === undefined || answer === '' || answer === null) {
+    return null
+  }
+
+  const isCorrect = checkAnswer(answer, q.answer, q.type)
+  results.value[q.id] = isCorrect
+  progressApi.updateProgress(
+    { userId: userStore.user.id },
+    { questionId: q.id, isCorrect }
+  ).catch(() => {})
+  return isCorrect
+}
+
 const previousQuestion = () => {
   if (currentIndex.value > 0) {
     currentIndex.value--
@@ -314,13 +335,14 @@ const previousQuestion = () => {
 }
 
 const nextQuestion = () => {
-  if (currentIndex.value < questions.value.length - 1) {
-    currentIndex.value++
-    showAnswer.value = false
-  }
+  if (currentIndex.value >= questions.value.length - 1) return
+  submitCurrent()
+  currentIndex.value++
+  showAnswer.value = false
 }
 
 const goToQuestion = (index) => {
+  submitCurrent()
   currentIndex.value = index
   showAnswer.value = false
 }
@@ -328,30 +350,23 @@ const goToQuestion = (index) => {
 const handleSubmitAnswer = async () => {
   const q = currentQuestion.value
   let answer = answers.value[q.id]
-  
   if (q.type === 'MULTIPLE_CHOICE') {
     answer = (multiAnswers.value[q.id] || []).join(',')
   }
-  
   if (answer === undefined || answer === '' || answer === null) {
     ElMessage.warning('请先作答再提交')
     return
   }
-  
+
   const isCorrect = checkAnswer(answer, q.answer, q.type)
+  results.value[q.id] = isCorrect
+  currentResult.value = isCorrect
 
   try {
     await progressApi.updateProgress(
       { userId: userStore.user.id },
-      {
-        questionId: q.id,
-        isCorrect: isCorrect
-      }
+      { questionId: q.id, isCorrect }
     )
-    
-    results.value[q.id] = isCorrect
-    currentResult.value = isCorrect
-    
     showAnswer.value = true
     showResultDialog.value = true
   } catch (error) {
