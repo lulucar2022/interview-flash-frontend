@@ -326,29 +326,30 @@ const goToQuestion = (index) => {
 }
 
 const handleSubmitAnswer = async () => {
-  const answer = answers.value[currentQuestion.value.id]
-  const isCorrect = answerCorrect.value[currentQuestion.value.id]
+  const q = currentQuestion.value
+  let answer = answers.value[q.id]
+  
+  if (q.type === 'MULTIPLE_CHOICE') {
+    answer = (multiAnswers.value[q.id] || []).join(',')
+  }
   
   if (answer === undefined || answer === '' || answer === null) {
-    ElMessage.warning('请输入答案后再提交')
+    ElMessage.warning('请先作答再提交')
     return
   }
   
-  if (isCorrect === undefined) {
-    ElMessage.warning('请选择回答是否正确')
-    return
-  }
+  const isCorrect = checkAnswer(answer, q.answer, q.type)
 
   try {
     await progressApi.updateProgress(
       { userId: userStore.user.id },
       {
-        questionId: currentQuestion.value.id,
+        questionId: q.id,
         isCorrect: isCorrect
       }
     )
     
-    results.value[currentQuestion.value.id] = isCorrect
+    results.value[q.id] = isCorrect
     currentResult.value = isCorrect
     
     showAnswer.value = true
@@ -356,6 +357,18 @@ const handleSubmitAnswer = async () => {
   } catch (error) {
     console.error('提交答案失败', error)
   }
+}
+
+const checkAnswer = (userAnswer, correctAnswer, type) => {
+  if (type === 'MULTIPLE_CHOICE') {
+    const userSet = new Set((userAnswer || '').split(',').map(a => a.trim()).filter(Boolean))
+    const correctSet = new Set((correctAnswer || '').split(',').map(a => a.trim()).filter(Boolean))
+    return userSet.size === correctSet.size && [...userSet].every(a => correctSet.has(a))
+  }
+  if (type === 'TRUE_FALSE' || type === 'SINGLE_CHOICE') {
+    return userAnswer === correctAnswer
+  }
+  return (userAnswer || '').trim() === (correctAnswer || '').trim()
 }
 
 const handleNextAfterSubmit = () => {
