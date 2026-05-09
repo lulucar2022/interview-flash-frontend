@@ -1,337 +1,373 @@
 <template>
   <div class="practice-container page-container">
-    <div class="practice-header">
-      <h1>在线刷题</h1>
-      <div class="progress-info">
-        <span>进度: {{ currentIndex + 1 }} / {{ questions.length }}</span>
-        <el-progress :percentage="progressPercent" :stroke-width="8" style="width: 200px;" />
-      </div>
-    </div>
-    
-    <div v-if="currentQuestion" class="practice-content">
-      <div class="question-card">
-        <div class="question-header">
-          <h2>{{ currentQuestion.title }}</h2>
-          <div class="question-meta">
-            <el-tag :type="getTypeTag(currentQuestion.type)" size="small">
-              {{ getTypeText(currentQuestion.type) }}
-            </el-tag>
-            <el-tag :type="getDifficultyType(currentQuestion.difficulty)" size="small">
-              {{ getDifficultyText(currentQuestion.difficulty) }}
-            </el-tag>
-          </div>
-        </div>
-        <div class="question-body">
-          <p>{{ currentQuestion.content }}</p>
-        </div>
-      </div>
+    <!-- 配置面板 -->
+    <div v-if="!started" class="setup-card">
+      <h1>⚡ 在线刷题</h1>
+      <p class="setup-desc">选择题目条件或全随机出题</p>
       
-      <div class="answer-card">
-        <h3>你的答案</h3>
-        
-        <!-- 单选题 -->
-        <div v-if="currentQuestion.type === 'SINGLE_CHOICE'" class="answer-options">
-          <el-radio-group v-model="answers[currentQuestion.id]">
-            <el-radio
-              v-for="(option, index) in parseOptions(currentQuestion.options)"
-              :key="index"
-              :label="option.label"
-              class="option-item"
-            >
-              <span class="option-label">{{ option.label }}.</span>
-              <span class="option-content">{{ option.content }}</span>
-            </el-radio>
-          </el-radio-group>
-        </div>
-        
-        <!-- 多选题 -->
-        <div v-else-if="currentQuestion.type === 'MULTIPLE_CHOICE'" class="answer-options">
-          <el-checkbox-group v-model="multiAnswers[currentQuestion.id]">
-            <el-checkbox
-              v-for="(option, index) in parseOptions(currentQuestion.options)"
-              :key="index"
-              :label="option.label"
-              class="option-item"
-            >
-              <span class="option-label">{{ option.label }}.</span>
-              <span class="option-content">{{ option.content }}</span>
-            </el-checkbox>
-          </el-checkbox-group>
-        </div>
-        
-        <!-- 判断题 -->
-        <div v-else-if="currentQuestion.type === 'TRUE_FALSE'" class="answer-options">
-          <el-radio-group v-model="answers[currentQuestion.id]" class="true-false-group">
-            <el-radio label="TRUE" class="tf-option">正确</el-radio>
-            <el-radio label="FALSE" class="tf-option">错误</el-radio>
-          </el-radio-group>
-        </div>
-        
-        <!-- 填空题 / 简答题 -->
-        <div v-else-if="currentQuestion.type === 'FILL_BLANK' || currentQuestion.type === 'SHORT_ANSWER'" class="answer-input">
-          <el-input
-            v-model="answers[currentQuestion.id]"
-            type="textarea"
-            :rows="currentQuestion.type === 'SHORT_ANSWER' ? 6 : 3"
-            :placeholder="currentQuestion.type === 'FILL_BLANK' ? '请填写答案...' : '请输入你的回答...'"
-          />
-        </div>
-        
-        <!-- 编程题 / 情景分析题 -->
-        <div v-else-if="currentQuestion.type === 'CODING' || currentQuestion.type === 'SCENARIO'" class="answer-input">
-          <el-input
-            v-model="answers[currentQuestion.id]"
-            type="textarea"
-            :rows="8"
-            placeholder="请输入你的代码或分析..."
-          />
-        </div>
-        
-        <!-- 其他题型默认用文本框 -->
-        <div v-else class="answer-input">
-          <el-input
-            v-model="answers[currentQuestion.id]"
-            type="textarea"
-            :rows="4"
-            placeholder="请输入答案..."
-          />
-        </div>
-        
-        <!-- <div class="answer-check">
-          <span>回答是否正确：</span>
-          <el-radio-group v-model="answerCorrect[currentQuestion.id]">
-            <el-radio :label="true">正确</el-radio>
-            <el-radio :label="false">错误</el-radio>
-          </el-radio-group>
-        </div> -->
-        
-        <div class="answer-actions">
-          <el-button @click="previousQuestion" :disabled="currentIndex === 0">
-            上一题
-          </el-button>
-          <el-button type="primary" @click="nextQuestion" v-if="currentIndex < questions.length - 1">
-            下一题
-          </el-button>
-          <el-button type="success" @click="handleSubmitAnswer" v-else>
-            提交答案
-          </el-button>
-        </div>
-      </div>
-      
-      <div class="action-bar">
-        <el-button :type="isFavorite ? 'warning' : 'default'" @click="toggleFavorite">
-          {{ isFavorite ? '取消收藏' : '收藏' }}
-        </el-button>
-        <el-button @click="toggleShowAnswer">
-          {{ showAnswer ? '隐藏答案' : '查看答案' }}
-        </el-button>
-      </div>
-      
-      <div v-if="showAnswer" class="answer-preview">
-        <h4>参考答案</h4>
-        <div class="answer-content">
-          <template v-if="currentQuestion.type === 'SINGLE_CHOICE' || currentQuestion.type === 'MULTIPLE_CHOICE'">
-            <div v-for="(opt, idx) in parseOptions(currentQuestion.options)" :key="idx" class="correct-option" :class="{ correct: isCorrectOption(opt.label, currentQuestion.answer) }">
-              {{ opt.label }}. {{ opt.content }}
-              <el-icon v-if="isCorrectOption(opt.label, currentQuestion.answer)" class="check-icon"><CircleCheckFilled /></el-icon>
+      <div class="config-section">
+        <el-row :gutter="16">
+          <el-col :span="8">
+            <div class="config-item">
+              <label>题目分类</label>
+              <el-select v-model="config.categoryId" placeholder="全部分类" clearable style="width:100%">
+                <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
+              </el-select>
             </div>
-          </template>
-          <template v-else-if="currentQuestion.type === 'TRUE_FALSE'">
-            {{ currentQuestion.answer === 'TRUE' ? '正确' : '错误' }}
-          </template>
-          <template v-else>
-            {{ currentQuestion.answer || '暂无参考答案' }}
-          </template>
+          </el-col>
+          <el-col :span="8">
+            <div class="config-item">
+              <label>题型</label>
+              <el-select v-model="config.type" placeholder="全部题型" clearable style="width:100%">
+                <el-option v-for="(label, key) in typeOptions" :key="key" :label="label" :value="key" />
+              </el-select>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="config-item">
+              <label>难度</label>
+              <el-select v-model="config.difficulty" placeholder="全部难度" clearable style="width:100%">
+                <el-option label="简单" value="EASY" />
+                <el-option label="中等" value="MEDIUM" />
+                <el-option label="困难" value="HARD" />
+              </el-select>
+            </div>
+          </el-col>
+        </el-row>
+        <div class="count-row">
+          <label>出题数量</label>
+          <el-slider v-model="config.size" :min="5" :max="50" :step="5" show-stops show-input style="width:300px" />
         </div>
       </div>
-    </div>
-    
-    <div v-else class="empty-state">
-      <el-empty description="暂无题目，请先选择分类">
-        <el-button type="primary" @click="$router.push('/questions')">
-          去题库
+
+      <div class="config-actions">
+        <el-button type="primary" size="large" @click="startRandom(true)" :loading="loading" class="start-btn">
+          🎲 全随机
         </el-button>
-      </el-empty>
-    </div>
-    
-    <div class="navigation-bar">
-      <el-button @click="previousQuestion" :disabled="currentIndex === 0">
-        上一题
-      </el-button>
-      <div class="question-dots">
-        <span
-          v-for="(q, index) in questions"
-          :key="q.id"
-          class="dot"
-          :class="{
-            active: index === currentIndex,
-            correct: results[q.id] === true,
-            wrong: results[q.id] === false
-          }"
-          @click="goToQuestion(index)"
-        />
+        <el-button size="large" @click="startRandom(false)" :loading="loading">
+          开始刷题
+        </el-button>
       </div>
-      <el-button @click="nextQuestion" :disabled="currentIndex === questions.length - 1">
-        下一题
-      </el-button>
     </div>
 
-    <el-dialog
-      v-model="showResultDialog"
-      title="答题结果"
-      width="400px"
-      :close-on-click-modal="false"
-      :show-close="false"
-    >
-      <div class="result-dialog-content">
-        <div class="result-icon" :class="currentResult ? 'correct' : 'wrong'">
-          {{ currentResult ? '🎉' : '❌' }}
-        </div>
-        <div class="result-text">
-          {{ currentResult ? '回答正确！' : '回答错误，已加入错题本' }}
-        </div>
-        <div class="result-stats">
-          <span>正确: {{ correctCount }}</span>
-          <span>错误: {{ wrongCount }}</span>
+    <!-- 答题区 -->
+    <template v-else>
+      <div class="practice-header">
+        <h1>在线刷题</h1>
+        <div class="progress-info">
+          <el-button @click="resetConfig" size="small" text>重新选择</el-button>
+          <span>进度: {{ currentIndex + 1 }} / {{ questions.length }}</span>
+          <el-progress :percentage="progressPercent" :stroke-width="8" style="width: 200px;" />
         </div>
       </div>
-      <template #footer>
-        <el-button type="primary" @click="handleNextAfterSubmit" v-if="currentIndex < questions.length - 1">
-          下一题
-        </el-button>
-        <el-button type="success" @click="handleFinish" v-else>
-          完成答题
-        </el-button>
-      </template>
-    </el-dialog>
 
-    <el-dialog
-      v-model="showFinishDialog"
-      title="答题完成"
-      width="450px"
-      :close-on-click-modal="false"
-      :show-close="false"
-    >
-      <div class="finish-dialog-content">
-        <div class="finish-stats">
-          <div class="stat-item">
-            <span class="stat-value">{{ correctCount }}</span>
-            <span class="stat-label">正确</span>
+      <div v-if="currentQuestion" class="practice-content">
+        <div class="question-card">
+          <div class="question-header">
+            <h2>{{ currentQuestion.title }}</h2>
+            <div class="question-meta">
+              <el-tag :type="getTypeTag(currentQuestion.type)" size="small">
+                {{ getTypeText(currentQuestion.type) }}
+              </el-tag>
+              <el-tag :type="getDifficultyType(currentQuestion.difficulty)" size="small">
+                {{ getDifficultyText(currentQuestion.difficulty) }}
+              </el-tag>
+              <span class="question-category">{{ currentQuestion.categoryName }}</span>
+            </div>
           </div>
-          <div class="stat-item">
-            <span class="stat-value danger">{{ wrongCount }}</span>
-            <span class="stat-label">错误</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">{{ questions.length }}</span>
-            <span class="stat-label">总计</span>
+          <div class="question-body">
+            <p>{{ currentQuestion.content }}</p>
           </div>
         </div>
-        <div class="finish-rate">
-          正确率: {{ Math.round(correctCount / questions.length * 100) }}%
+        
+        <div class="answer-card">
+          <h3>你的答案</h3>
+          
+          <!-- 单选题 -->
+          <div v-if="currentQuestion.type === 'SINGLE_CHOICE'" class="answer-options">
+            <el-radio-group v-model="answers[currentQuestion.id]">
+              <el-radio
+                v-for="(option, index) in parseOptions(currentQuestion.options)"
+                :key="index"
+                :label="option.label"
+              >
+                <span class="option-label">{{ option.label }}.</span>
+                <span class="option-content">{{ option.content }}</span>
+              </el-radio>
+            </el-radio-group>
+          </div>
+          
+          <!-- 多选题 -->
+          <div v-else-if="currentQuestion.type === 'MULTIPLE_CHOICE'" class="answer-options">
+            <el-checkbox-group v-model="multiAnswers[currentQuestion.id]">
+              <el-checkbox
+                v-for="(option, index) in parseOptions(currentQuestion.options)"
+                :key="index"
+                :label="option.label"
+              >
+                <span class="option-label">{{ option.label }}.</span>
+                <span class="option-content">{{ option.content }}</span>
+              </el-checkbox>
+            </el-checkbox-group>
+          </div>
+          
+          <!-- 判断题 -->
+          <div v-else-if="currentQuestion.type === 'TRUE_FALSE'" class="answer-options">
+            <el-radio-group v-model="answers[currentQuestion.id]" class="true-false-group">
+              <el-radio label="TRUE" class="tf-option">正确</el-radio>
+              <el-radio label="FALSE" class="tf-option">错误</el-radio>
+            </el-radio-group>
+          </div>
+          
+          <!-- 填空题 / 简答题 -->
+          <div v-else-if="currentQuestion.type === 'FILL_BLANK' || currentQuestion.type === 'SHORT_ANSWER'" class="answer-input">
+            <el-input
+              v-model="answers[currentQuestion.id]"
+              type="textarea"
+              :rows="currentQuestion.type === 'SHORT_ANSWER' ? 6 : 3"
+              :placeholder="currentQuestion.type === 'FILL_BLANK' ? '请填写答案...' : '请输入你的回答...'"
+            />
+          </div>
+          
+          <!-- 编程题 / 情景分析题 -->
+          <div v-else-if="currentQuestion.type === 'CODING' || currentQuestion.type === 'SCENARIO'" class="answer-input">
+            <el-input
+              v-model="answers[currentQuestion.id]"
+              type="textarea"
+              :rows="8"
+              placeholder="请输入你的代码或分析..."
+            />
+          </div>
+          
+          <!-- 其他题型 -->
+          <div v-else class="answer-input">
+            <el-input v-model="answers[currentQuestion.id]" type="textarea" :rows="4" placeholder="请输入答案..." />
+          </div>
+          
+          <div class="answer-actions">
+            <el-button @click="previousQuestion" :disabled="currentIndex === 0">
+              上一题
+            </el-button>
+            <el-button type="primary" @click="nextQuestion" v-if="currentIndex < questions.length - 1">
+              下一题
+            </el-button>
+            <el-button type="success" @click="handleSubmitAnswer" v-else>
+              提交答案
+            </el-button>
+          </div>
+        </div>
+        
+        <div class="action-bar">
+          <el-button :type="isFavorite ? 'warning' : 'default'" @click="toggleFavorite">
+            {{ isFavorite ? '取消收藏' : '收藏' }}
+          </el-button>
+          <el-button @click="toggleShowAnswer">
+            {{ showAnswer ? '隐藏答案' : '查看答案' }}
+          </el-button>
+        </div>
+        
+        <div v-if="showAnswer" class="answer-preview">
+          <h4>参考答案</h4>
+          <div class="answer-content">
+            <template v-if="currentQuestion.type === 'SINGLE_CHOICE' || currentQuestion.type === 'MULTIPLE_CHOICE'">
+              <div v-for="(opt, idx) in parseOptions(currentQuestion.options)" :key="idx" class="correct-option" :class="{ correct: isCorrectOption(opt.label, currentQuestion.answer) }">
+                {{ opt.label }}. {{ opt.content }}
+                <el-icon v-if="isCorrectOption(opt.label, currentQuestion.answer)" class="check-icon"><CircleCheckFilled /></el-icon>
+              </div>
+            </template>
+            <template v-else-if="currentQuestion.type === 'TRUE_FALSE'">
+              {{ currentQuestion.answer === 'TRUE' ? '正确' : '错误' }}
+            </template>
+            <template v-else>
+              {{ currentQuestion.answer || '暂无参考答案' }}
+            </template>
+          </div>
         </div>
       </div>
-      <template #footer>
-        <el-button @click="$router.push('/')">返回首页</el-button>
-        <el-button type="primary" @click="restartPractice">再次练习</el-button>
-      </template>
-    </el-dialog>
+      
+      <div v-else class="empty-state">
+        <el-empty description="暂无题目，请先选择分类">
+          <el-button type="primary" @click="$router.push('/questions')">去题库</el-button>
+        </el-empty>
+      </div>
+      
+      <div class="navigation-bar">
+        <el-button @click="previousQuestion" :disabled="currentIndex === 0">上一题</el-button>
+        <div class="question-dots">
+          <span
+            v-for="(q, index) in questions"
+            :key="q.id"
+            class="dot"
+            :class="{ active: index === currentIndex, correct: results[q.id] === true, wrong: results[q.id] === false }"
+            @click="goToQuestion(index)"
+          />
+        </div>
+        <el-button @click="nextQuestion" :disabled="currentIndex === questions.length - 1">下一题</el-button>
+      </div>
+
+      <el-dialog v-model="showResultDialog" title="答题结果" width="400px" :close-on-click-modal="false" :show-close="false">
+        <div class="result-dialog-content">
+          <div class="result-icon" :class="currentResult ? 'correct' : 'wrong'">
+            {{ currentResult ? '🎉' : '❌' }}
+          </div>
+          <div class="result-text">
+            {{ currentResult ? '回答正确！' : '回答错误，已加入错题本' }}
+          </div>
+          <div class="result-stats">
+            <span>正确: {{ correctCount }}</span>
+            <span>错误: {{ wrongCount }}</span>
+          </div>
+        </div>
+        <template #footer>
+          <el-button type="primary" @click="handleNextAfterSubmit" v-if="currentIndex < questions.length - 1">下一题</el-button>
+          <el-button type="success" @click="handleFinish" v-else>完成答题</el-button>
+        </template>
+      </el-dialog>
+
+      <el-dialog v-model="showFinishDialog" title="答题完成" width="450px" :close-on-click-modal="false" :show-close="false">
+        <div class="finish-dialog-content">
+          <div class="finish-stats">
+            <div class="stat-item"><span class="stat-value">{{ correctCount }}</span><span class="stat-label">正确</span></div>
+            <div class="stat-item"><span class="stat-value danger">{{ wrongCount }}</span><span class="stat-label">错误</span></div>
+            <div class="stat-item"><span class="stat-value">{{ questions.length }}</span><span class="stat-label">总计</span></div>
+          </div>
+          <div class="finish-rate">正确率: {{ Math.round(correctCount / questions.length * 100) }}%</div>
+        </div>
+        <template #footer>
+          <el-button @click="resetConfig">重新选择</el-button>
+          <el-button type="primary" @click="restartPractice">再次练习</el-button>
+        </template>
+      </el-dialog>
+    </template>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { questionApi, progressApi } from '@/api'
+import { useRoute } from 'vue-router'
+import { questionApi, progressApi, categoryApi } from '@/api'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import { CircleCheckFilled } from '@element-plus/icons-vue'
 
 const route = useRoute()
-const router = useRouter()
 const userStore = useUserStore()
+
+const started = ref(false)
+const loading = ref(false)
+const categories = ref([])
+
+const config = ref({
+  categoryId: null,
+  type: null,
+  difficulty: null,
+  size: 10
+})
+
+const typeOptions = {
+  SINGLE_CHOICE: '单选题', MULTIPLE_CHOICE: '多选题', TRUE_FALSE: '判断题',
+  FILL_BLANK: '填空题', SHORT_ANSWER: '简答题', CODING: '编程题', SCENARIO: '情景分析题'
+}
 
 const questions = ref([])
 const currentIndex = ref(0)
 const answers = ref({})
 const multiAnswers = ref({})
-const answerCorrect = ref({})
 const results = ref({})
 const showAnswer = ref(false)
 const isFavorite = ref(false)
-
 const showResultDialog = ref(false)
 const showFinishDialog = ref(false)
 const currentResult = ref(true)
 
 const correctCount = computed(() => Object.values(results.value).filter(r => r === true).length)
 const wrongCount = computed(() => Object.values(results.value).filter(r => r === false).length)
-
 const currentQuestion = computed(() => questions.value[currentIndex.value])
 
 const progressPercent = computed(() => {
   if (questions.value.length === 0) return 0
-  const answered = Object.keys(results.value).length
-  return Math.round((answered / questions.value.length) * 100)
+  return Math.round((Object.keys(results.value).length / questions.value.length) * 100)
 })
 
-const parseOptions = (optionsStr) => {
-  if (!optionsStr) return []
+const loadCategories = async () => {
   try {
-    return JSON.parse(optionsStr)
-  } catch {
-    return []
+    const res = await categoryApi.getAll()
+    categories.value = res.data || []
+  } catch (error) {}
+}
+
+const startRandom = async (fullRandom) => {
+  loading.value = true
+  try {
+    const params = { userId: userStore.user.id, size: config.value.size }
+    if (!fullRandom) {
+      if (config.value.categoryId) params.categoryId = config.value.categoryId
+      if (config.value.type) params.type = config.value.type
+      if (config.value.difficulty) params.difficulty = config.value.difficulty
+    }
+    const res = await questionApi.getRandomBatch(params)
+    questions.value = res.data || []
+    if (questions.value.length === 0) {
+      ElMessage.warning('没有符合条件的题目')
+      return
+    }
+    resetState()
+    started.value = true
+  } catch (error) {
+    ElMessage.error('加载题目失败')
+  } finally {
+    loading.value = false
   }
+}
+
+const resetState = () => {
+  currentIndex.value = 0
+  answers.value = {}
+  multiAnswers.value = {}
+  results.value = {}
+  showAnswer.value = false
+  isFavorite.value = false
+}
+
+const resetConfig = () => {
+  started.value = false
+  resetState()
+}
+
+const parseOptions = (str) => {
+  if (!str) return []
+  try { return JSON.parse(str) } catch { return [] }
 }
 
 const isCorrectOption = (label, answer) => {
   if (!answer) return false
-  const answers = answer.split(',').map(a => a.trim())
-  return answers.includes(label)
-}
-
-const loadQuestions = async () => {
-  try {
-    const res = await questionApi.getRandomBatch({ userId: userStore.user.id, size: 20 })
-    questions.value = res.data || []
-    
-    if (route.query.questionId) {
-      const index = questions.value.findIndex(q => q.id === parseInt(route.query.questionId))
-      if (index !== -1) {
-        currentIndex.value = index
-      }
-    }
-  } catch (error) {
-    ElMessage.error('加载题目失败')
-  }
+  return answer.split(',').map(a => a.trim()).includes(label)
 }
 
 const submitCurrent = () => {
   const q = currentQuestion.value
   if (!q) return null
-
   let answer = answers.value[q.id]
-  if (q.type === 'MULTIPLE_CHOICE') {
-    answer = (multiAnswers.value[q.id] || []).join(',')
-  }
-  if (answer === undefined || answer === '' || answer === null) {
-    return null
-  }
-
+  if (q.type === 'MULTIPLE_CHOICE') answer = (multiAnswers.value[q.id] || []).join(',')
+  if (answer === undefined || answer === '' || answer === null) return null
   const isCorrect = checkAnswer(answer, q.answer, q.type)
   results.value[q.id] = isCorrect
-  progressApi.updateProgress(
-    { userId: userStore.user.id },
-    { questionId: q.id, isCorrect }
-  ).catch(() => {})
+  progressApi.updateProgress({ userId: userStore.user.id }, { questionId: q.id, isCorrect }).catch(() => {})
   return isCorrect
 }
 
-const previousQuestion = () => {
-  if (currentIndex.value > 0) {
-    currentIndex.value--
-    showAnswer.value = false
+const checkAnswer = (ua, ca, type) => {
+  if (type === 'MULTIPLE_CHOICE') {
+    const u = new Set((ua || '').split(',').map(s => s.trim()).filter(Boolean))
+    const c = new Set((ca || '').split(',').map(s => s.trim()).filter(Boolean))
+    return u.size === c.size && [...u].every(x => c.has(x))
   }
+  if (type === 'TRUE_FALSE' || type === 'SINGLE_CHOICE') return ua === ca
+  return (ua || '').trim() === (ca || '').trim()
+}
+
+const previousQuestion = () => {
+  if (currentIndex.value > 0) { currentIndex.value--; showAnswer.value = false }
 }
 
 const nextQuestion = () => {
@@ -341,66 +377,33 @@ const nextQuestion = () => {
   showAnswer.value = false
 }
 
-const goToQuestion = (index) => {
-  submitCurrent()
-  currentIndex.value = index
-  showAnswer.value = false
-}
+const goToQuestion = (index) => { submitCurrent(); currentIndex.value = index; showAnswer.value = false }
 
 const handleSubmitAnswer = async () => {
   const q = currentQuestion.value
   let answer = answers.value[q.id]
-  if (q.type === 'MULTIPLE_CHOICE') {
-    answer = (multiAnswers.value[q.id] || []).join(',')
-  }
+  if (q.type === 'MULTIPLE_CHOICE') answer = (multiAnswers.value[q.id] || []).join(',')
   if (answer === undefined || answer === '' || answer === null) {
     ElMessage.warning('请先作答再提交')
     return
   }
-
   const isCorrect = checkAnswer(answer, q.answer, q.type)
   results.value[q.id] = isCorrect
   currentResult.value = isCorrect
-
   try {
-    await progressApi.updateProgress(
-      { userId: userStore.user.id },
-      { questionId: q.id, isCorrect }
-    )
+    await progressApi.updateProgress({ userId: userStore.user.id }, { questionId: q.id, isCorrect })
     showAnswer.value = true
     showResultDialog.value = true
-  } catch (error) {
-    console.error('提交答案失败', error)
-  }
+  } catch (error) {}
 }
 
-const checkAnswer = (userAnswer, correctAnswer, type) => {
-  if (type === 'MULTIPLE_CHOICE') {
-    const userSet = new Set((userAnswer || '').split(',').map(a => a.trim()).filter(Boolean))
-    const correctSet = new Set((correctAnswer || '').split(',').map(a => a.trim()).filter(Boolean))
-    return userSet.size === correctSet.size && [...userSet].every(a => correctSet.has(a))
-  }
-  if (type === 'TRUE_FALSE' || type === 'SINGLE_CHOICE') {
-    return userAnswer === correctAnswer
-  }
-  return (userAnswer || '').trim() === (correctAnswer || '').trim()
-}
-
-const handleNextAfterSubmit = () => {
-  showResultDialog.value = false
-  nextQuestion()
-}
-
-const handleFinish = () => {
-  showResultDialog.value = false
-  showFinishDialog.value = true
-}
+const handleNextAfterSubmit = () => { showResultDialog.value = false; nextQuestion() }
+const handleFinish = () => { showResultDialog.value = false; showFinishDialog.value = true }
 
 const restartPractice = () => {
   showFinishDialog.value = false
   answers.value = {}
   multiAnswers.value = {}
-  answerCorrect.value = {}
   results.value = {}
   currentIndex.value = 0
 }
@@ -408,77 +411,29 @@ const restartPractice = () => {
 const toggleFavorite = async () => {
   if (!currentQuestion.value) return
   try {
-    await progressApi.updateProgress(
-      { userId: userStore.user.id },
-      {
-        questionId: currentQuestion.value.id,
-        isFavorite: !isFavorite.value
-      }
-    )
+    await progressApi.updateProgress({ userId: userStore.user.id }, { questionId: currentQuestion.value.id, isFavorite: !isFavorite.value })
     isFavorite.value = !isFavorite.value
     ElMessage.success(isFavorite.value ? '已收藏' : '已取消收藏')
-  } catch (error) {
-    ElMessage.error('操作失败')
-  }
+  } catch (error) { ElMessage.error('操作失败') }
 }
 
-const toggleShowAnswer = () => {
-  showAnswer.value = !showAnswer.value
-}
+const toggleShowAnswer = () => { showAnswer.value = !showAnswer.value }
 
-const getTypeText = (type) => {
-  const texts = {
-    SINGLE_CHOICE: '单选题',
-    MULTIPLE_CHOICE: '多选题',
-    TRUE_FALSE: '判断题',
-    FILL_BLANK: '填空题',
-    SHORT_ANSWER: '简答题',
-    CODING: '编程题',
-    SCENARIO: '情景分析题'
-  }
-  return texts[type] || type
-}
+const getTypeText = (t) => typeOptions[t] || t
+const getTypeTag = (t) => ({ SINGLE_CHOICE:'primary', MULTIPLE_CHOICE:'success', TRUE_FALSE:'warning', FILL_BLANK:'info', SHORT_ANSWER:'info', CODING:'danger', SCENARIO:'danger' }[t] || 'info')
+const getDifficultyType = (d) => ({ EASY:'success', MEDIUM:'warning', HARD:'danger' }[d] || 'info')
+const getDifficultyText = (d) => ({ EASY:'简单', MEDIUM:'中等', HARD:'困难' }[d] || d)
 
-const getTypeTag = (type) => {
-  const tags = {
-    SINGLE_CHOICE: 'primary',
-    MULTIPLE_CHOICE: 'success',
-    TRUE_FALSE: 'warning',
-    FILL_BLANK: 'info',
-    SHORT_ANSWER: 'info',
-    CODING: 'danger',
-    SCENARIO: 'danger'
-  }
-  return tags[type] || 'info'
-}
-
-const getDifficultyType = (difficulty) => {
-  const types = { EASY: 'success', MEDIUM: 'warning', HARD: 'danger' }
-  return types[difficulty] || 'info'
-}
-
-const getDifficultyText = (difficulty) => {
-  const texts = { EASY: '简单', MEDIUM: '中等', HARD: '困难' }
-  return texts[difficulty] || difficulty
-}
-
-watch(currentQuestion, async (newQ) => {
-  if (newQ) {
+watch(currentQuestion, async (q) => {
+  if (q) {
     try {
-      const res = await progressApi.getProgressByQuestion({
-        userId: userStore.user.id,
-        questionId: newQ.id
-      })
+      const res = await progressApi.getProgressByQuestion({ userId: userStore.user.id, questionId: q.id })
       isFavorite.value = res.data?.isFavorite || false
-    } catch (error) {
-      isFavorite.value = false
-    }
+    } catch { isFavorite.value = false }
   }
 })
 
-onMounted(() => {
-  loadQuestions()
-})
+onMounted(() => { loadCategories() })
 </script>
 
 <style scoped>
@@ -486,6 +441,67 @@ onMounted(() => {
   max-width: 900px;
   margin: 0 auto;
   padding-top: 20px;
+}
+
+.setup-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 48px 40px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.setup-card h1 {
+  font-size: 28px;
+  color: #303133;
+  margin-bottom: 8px;
+}
+
+.setup-desc {
+  color: #909399;
+  font-size: 15px;
+  margin-bottom: 36px;
+}
+
+.config-section {
+  text-align: left;
+  margin-bottom: 32px;
+}
+
+.config-item label,
+.count-row label {
+  display: block;
+  font-size: 14px;
+  color: #606266;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.config-item {
+  margin-bottom: 16px;
+}
+
+.count-row {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.config-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.start-btn {
+  padding: 12px 36px;
+  font-size: 16px;
+}
+
+.question-category {
+  font-size: 12px;
+  color: #909399;
 }
 
 .practice-header {
