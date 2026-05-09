@@ -96,14 +96,26 @@
       </el-col>
     </el-row>
     
-    <div class="quick-actions">
-      <el-button type="primary" size="large" @click="$router.push('/practice')">
-        🚀 开始刷题
-      </el-button>
-      <el-button size="large" @click="$router.push('/wrong')">
-        📝 查看错题本
-      </el-button>
-    </div>
+    <el-row :gutter="20" class="quick-actions">
+      <el-col :span="12">
+        <div class="action-card action-primary" @click="$router.push('/practice')">
+          <div class="action-icon">🚀</div>
+          <div class="action-info">
+            <div class="action-title">开始刷题</div>
+            <div class="action-desc">随机题目 + 智能排序</div>
+          </div>
+        </div>
+      </el-col>
+      <el-col :span="12">
+        <div class="action-card action-secondary" @click="$router.push('/wrong')">
+          <div class="action-icon">📝</div>
+          <div class="action-info">
+            <div class="action-title">查看错题本</div>
+            <div class="action-desc">重温错题，查漏补缺</div>
+          </div>
+        </div>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -297,13 +309,57 @@ onMounted(() => {
 }
 
 .quick-actions {
-  text-align: center;
   margin-top: 32px;
 }
 
-.quick-actions .el-button {
-  margin: 0 12px;
-  padding: 16px 32px;
-  font-size: 16px;
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.action-card:hover {
+  transform: translateY(-2px);
+}
+
+.action-primary {
+  background: linear-gradient(135deg, #409EFF, #337ecc);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(64, 158, 255, 0.3);
+}
+
+.action-primary:hover {
+  box-shadow: 0 6px 24px rgba(64, 158, 255, 0.4);
+}
+
+.action-secondary {
+  background: #f5f7fa;
+  color: #303133;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.action-secondary:hover {
+  background: #ecf5ff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.action-icon {
+  font-size: 36px;
+  flex-shrink: 0;
+}
+
+.action-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.action-desc {
+  font-size: 13px;
+  opacity: 0.8;
 }
 </style>
