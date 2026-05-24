@@ -19,14 +19,20 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Header from '@/components/Header.vue'
 import { useAppStore } from '@/stores/app'
+import { useUserStore } from '@/stores/user'
 import '@/styles/variables.css'
 
 const route = useRoute()
 const appStore = useAppStore()
+const userStore = useUserStore()
+
+onMounted(() => {
+  userStore.initializeAuth()
+})
 
 const showHeader = computed(() => route.path !== '/login')
 </script>

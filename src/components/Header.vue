@@ -19,13 +19,16 @@
         <router-link to="/wrong" class="nav-item" :class="{ active: $route.path === '/wrong' }">
           错题本
         </router-link>
+        <router-link to="/articles" class="nav-item" :class="{ active: $route.path.startsWith('/articles') }">
+          社区
+        </router-link>
       </div>
       
       <div class="user-area">
         <el-dropdown @command="handleCommand">
           <span class="user-info">
-            <span class="avatar">{{ userStore.user?.displayName?.[0] || 'U' }}</span>
-            <span class="username">{{ userStore.user?.displayName || userStore.user?.username || '用户' }}</span>
+            <span class="avatar">{{ (userStore.user?.nickname || 'U')[0] }}</span>
+            <span class="username">{{ userStore.user?.nickname || userStore.user?.email || '用户' }}</span>
             <i class="el-icon-arrow-down"></i>
           </span>
           <template #dropdown>

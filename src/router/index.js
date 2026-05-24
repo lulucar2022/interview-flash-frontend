@@ -45,6 +45,24 @@ const routes = [
     meta: { title: '个人中心', requiresAuth: true }
   },
   {
+    path: '/articles',
+    name: 'ArticleList',
+    component: () => import('@/views/community/ArticleList.vue'),
+    meta: { title: '社区', requiresAuth: true }
+  },
+  {
+    path: '/articles/create',
+    name: 'ArticleCreate',
+    component: () => import('@/views/community/ArticleCreate.vue'),
+    meta: { title: '发布文章', requiresAuth: true }
+  },
+  {
+    path: '/articles/:id',
+    name: 'ArticleDetail',
+    component: () => import('@/views/community/ArticleDetail.vue'),
+    meta: { title: '文章详情', requiresAuth: true }
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/'
   }

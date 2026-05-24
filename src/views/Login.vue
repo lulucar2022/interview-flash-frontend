@@ -71,17 +71,14 @@
         :rules="registerRules"
         label-width="80px"
       >
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="registerForm.username" placeholder="3-50个字符" />
+        <el-form-item label="昵称" prop="nickname">
+          <el-input v-model="registerForm.nickname" placeholder="3-50个字符" />
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="registerForm.email" placeholder="请输入邮箱" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input v-model="registerForm.password" type="password" placeholder="6-100个字符" show-password />
-        </el-form-item>
-        <el-form-item label="显示名" prop="displayName">
-          <el-input v-model="registerForm.displayName" placeholder="可选" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -96,7 +93,6 @@
 import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { userApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -128,16 +124,15 @@ const registerFormRef = ref()
 const registerLoading = ref(false)
 
 const registerForm = reactive({
-  username: '',
+  nickname: '',
   email: '',
-  password: '',
-  displayName: ''
+  password: ''
 })
 
 const registerRules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 50, message: '用户名长度在 3 到 50 个字符', trigger: 'blur' }
+  nickname: [
+    { required: true, message: '请输入昵称', trigger: 'blur' },
+    { min: 3, max: 50, message: '昵称长度在 3 到 50 个字符', trigger: 'blur' }
   ],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
@@ -146,9 +141,6 @@ const registerRules = {
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, max: 100, message: '密码长度在 6 到 100 个字符', trigger: 'blur' }
-  ],
-  displayName: [
-    { max: 100, message: '显示名称不能超过100个字符', trigger: 'blur' }
   ]
 }
 
@@ -187,19 +179,12 @@ const handleRegister = async () => {
     if (valid) {
       registerLoading.value = true
       try {
-        const res = await userApi.createUser(registerForm)
-        ElMessage.success('注册成功，请登录')
-        showRegisterDialog.value = false
-        
-        loginForm.username = registerForm.username
-        loginForm.password = registerForm.password
-        
-        registerForm.username = ''
-        registerForm.email = ''
-        registerForm.password = ''
-        registerForm.displayName = ''
-      } catch (error) {
-        // 错误已在拦截器处理
+        const success = await userStore.register(registerForm)
+        if (success) {
+          showRegisterDialog.value = false
+          const redirect = route.query.redirect || '/'
+          router.push(redirect)
+        }
       } finally {
         registerLoading.value = false
       }

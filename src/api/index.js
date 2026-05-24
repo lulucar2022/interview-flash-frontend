@@ -75,3 +75,30 @@ export const wrongApi = {
   
   removeWrong: (params) => request.delete('/wrong', { params })
 }
+
+export const authApi = {
+  login: (data) => request.post('/auth/login', data),
+  register: (data) => request.post('/auth/register', data),
+  getMe: () => request.get('/auth/me'),
+}
+
+export const articleApi = {
+  getList: (params) => request.get('/articles', { params }),
+  getById: (id) => request.get(`/articles/${id}`),
+  create: (data) => request.post('/articles', data),
+}
+
+export const topicApi = {
+  getAll: () => request.get('/topics'),
+}
+
+export const commentApi = {
+  getByArticle: (params) => request.get('/comments', { params }),
+  create: (data) => request.post('/comments', data),
+}
+
+export const followApi = {
+  follow: (data) => request.post('/follows', data),
+  unfollow: (params) => request.delete('/follows', { params }),
+  getStatus: (params) => request.get('/follows/status', { params }),
+}
