@@ -2,6 +2,9 @@
   <div class="question-list-container page-container">
     <div class="page-header">
       <h1 class="page-title">题库列表</h1>
+      <div class="page-actions">
+        <el-button type="primary" @click="showImportDialog = true">📥 批量导入</el-button>
+      </div>
       <div class="filters">
         <div class="filter-item">
           <label class="filter-label">分类</label>
@@ -63,6 +66,45 @@
         @current-change="handleCurrentChange"
       />
     </div>
+
+    <el-dialog v-model="showImportDialog" title="批量导入题库" width="500px">
+      <div class="import-body">
+        <el-upload
+          ref="uploadRef"
+          drag
+          accept=".xlsx,.json"
+          :limit="1"
+          :before-upload="handleBeforeUpload"
+          :http-request="handleUpload"
+          :auto-upload="false"
+        >
+          <div class="upload-icon">📂</div>
+          <div class="upload-text">将 .xlsx 或 .json 文件拖到此处</div>
+          <div class="upload-hint">或点击选择文件</div>
+        </el-upload>
+
+        <div class="import-actions">
+          <el-button type="primary" @click="submitUpload" :loading="importLoading">
+            开始导入
+          </el-button>
+          <el-button @click="downloadTemplate">下载导入模板</el-button>
+        </div>
+
+        <div v-if="importResult" class="import-result">
+          <el-alert
+            :type="importResult.fail > 0 ? 'warning' : 'success'"
+            :closable="false"
+          >
+            <template #title>
+              导入完成：成功 {{ importResult.success }} 条，失败 {{ importResult.fail }} 条
+            </template>
+          </el-alert>
+          <ul v-if="importResult.errors.length > 0" class="error-list">
+            <li v-for="(err, i) in importResult.errors" :key="i">{{ err }}</li>
+          </ul>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -70,6 +112,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { categoryApi, questionApi } from '@/api'
+import { ElMessage } from 'element-plus'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -83,6 +126,57 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const selectedCategory = ref(null)
 const selectedDifficulty = ref(null)
+
+const showImportDialog = ref(false)
+const importLoading = ref(false)
+const importFile = ref(null)
+const importResult = ref(null)
+
+const handleBeforeUpload = (file) => {
+  const ext = file.name.split('.').pop().toLowerCase()
+  if (!['xlsx', 'json'].includes(ext)) {
+    ElMessage.error('仅支持 .xlsx 或 .json 文件')
+    return false
+  }
+  importFile.value = file
+  return false
+}
+
+const handleUpload = () => {}
+
+const submitUpload = async () => {
+  if (!importFile.value) {
+    ElMessage.warning('请先选择文件')
+    return
+  }
+  importLoading.value = true
+  importResult.value = null
+  try {
+    const res = await questionApi.importFile(importFile.value)
+    importResult.value = res.data
+    ElMessage.success(res.msg)
+    loadQuestions()
+  } catch (e) {
+    ElMessage.error('导入失败')
+  } finally {
+    importLoading.value = false
+  }
+}
+
+const downloadTemplate = async () => {
+  try {
+    const res = await questionApi.downloadTemplate()
+    const blob = res instanceof Blob ? res : new Blob([res])
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'questions-template.xlsx'
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    ElMessage.error('下载模板失败')
+  }
+}
 
 const loadCategories = async () => {
   try {
@@ -260,5 +354,52 @@ onMounted(() => {
 .pagination-wrapper {
   display: flex;
   justify-content: center;
+}
+
+.page-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.import-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.upload-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  font-size: 14px;
+  color: #606266;
+}
+
+.upload-hint {
+  font-size: 12px;
+  color: #c0c4cc;
+  margin-top: 4px;
+}
+
+.import-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.import-result {
+  padding: 16px;
+  background: #f5f7fa;
+  border-radius: 8px;
+}
+
+.error-list {
+  margin-top: 12px;
+  padding-left: 20px;
+  font-size: 13px;
+  color: #e6a23c;
+  line-height: 1.8;
 }
 </style>
