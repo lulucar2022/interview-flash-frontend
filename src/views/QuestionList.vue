@@ -2,7 +2,7 @@
   <div class="question-list-container page-container">
     <div class="page-header">
       <h1 class="page-title">题库列表</h1>
-      <div class="page-actions">
+      <div class="page-actions" v-if="userStore.user?.role === 'ADMIN'">
         <el-button type="primary" @click="showImportDialog = true">📥 批量导入</el-button>
       </div>
       <div class="filters">
@@ -111,11 +111,13 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import { categoryApi, questionApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
+const userStore = useUserStore()
 
 const loading = ref(false)
 const questions = ref([])
@@ -153,7 +155,7 @@ const submitUpload = async () => {
   try {
     const res = await questionApi.importFile(importFile.value)
     importResult.value = res.data
-    ElMessage.success(res.msg)
+    ElMessage.success(`导入完成: 成功 ${res.data.success} 条, 失败 ${res.data.fail} 条`)
     loadQuestions()
   } catch (e) {
     ElMessage.error('导入失败')

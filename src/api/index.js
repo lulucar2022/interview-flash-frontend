@@ -48,12 +48,12 @@ export const questionApi = {
   importFile: (file) => {
     const formData = new FormData()
     formData.append('file', file)
-    return request.post('/questions/import', formData, {
+    return request.post('/admin/questions/import', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
   },
 
-  downloadTemplate: () => request.get('/questions/import/template', { responseType: 'blob' }),
+  downloadTemplate: () => request.get('/admin/questions/import/template', { responseType: 'blob' }),
 
   update: (id, data) => request.put(`/questions/${id}`, data),
   
