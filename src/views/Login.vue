@@ -71,8 +71,11 @@
         :rules="registerRules"
         label-width="80px"
       >
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="registerForm.username" placeholder="3-50个字符" />
+        </el-form-item>
         <el-form-item label="昵称" prop="nickname">
-          <el-input v-model="registerForm.nickname" placeholder="3-50个字符" />
+          <el-input v-model="registerForm.nickname" placeholder="选填" />
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="registerForm.email" placeholder="请输入邮箱" />
@@ -124,15 +127,19 @@ const registerFormRef = ref()
 const registerLoading = ref(false)
 
 const registerForm = reactive({
+  username: '',
   nickname: '',
   email: '',
   password: ''
 })
 
 const registerRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 3, max: 50, message: '用户名长度在 3 到 50 个字符', trigger: 'blur' }
+  ],
   nickname: [
-    { required: true, message: '请输入昵称', trigger: 'blur' },
-    { min: 3, max: 50, message: '昵称长度在 3 到 50 个字符', trigger: 'blur' }
+    { max: 50, message: '昵称不能超过 50 个字符', trigger: 'blur' }
   ],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },

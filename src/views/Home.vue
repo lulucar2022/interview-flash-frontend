@@ -20,6 +20,11 @@
           <span class="welcome-stat-value">{{ statistics.progressRate || '0.00' }}%</span>
           <span class="welcome-stat-label">掌握率</span>
         </div>
+        <div class="welcome-divider"></div>
+        <div class="welcome-stat-item welcome-stat-streak">
+          <span class="welcome-stat-value">🔥 {{ streakDays }}</span>
+          <span class="welcome-stat-label">连续学习</span>
+        </div>
       </div>
     </div>
     
@@ -144,7 +149,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { categoryApi, questionApi, progressApi } from '@/api'
+import { categoryApi, questionApi, progressApi, statisticsApi } from '@/api'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -152,20 +157,23 @@ const userStore = useUserStore()
 const categories = ref([])
 const hotQuestions = ref([])
 const statistics = ref({})
+const streakDays = ref(0)
 
 const loadData = async () => {
   try {
-    const [categoriesRes, hotRes, statsRes, totalRes] = await Promise.all([
+    const [categoriesRes, hotRes, statsRes, totalRes, streakRes] = await Promise.all([
       categoryApi.getAll(),
       questionApi.getHot({ size: 5 }),
       progressApi.getStatistics({ userId: userStore.user.id }),
-      questionApi.getCount()
+      questionApi.getCount(),
+      statisticsApi.getStreak({ userId: userStore.user.id })
     ])
     
     categories.value = categoriesRes.data || []
     hotQuestions.value = hotRes.data || []
     statistics.value = statsRes.data || {}
     statistics.value.totalQuestions = totalRes.data || 0
+    streakDays.value = streakRes.data?.currentStreak || 0
   } catch (error) {
     console.error('加载数据失败', error)
   }
@@ -265,6 +273,10 @@ onMounted(() => {
   width: 1px;
   height: 36px;
   background: #e4e7ed;
+}
+
+.welcome-stat-streak .welcome-stat-value {
+  color: #E6A23C;
 }
 
 .quick-actions {

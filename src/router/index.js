@@ -39,6 +39,12 @@ const routes = [
     meta: { title: '错题本', requiresAuth: true }
   },
   {
+    path: '/statistics',
+    name: 'Statistics',
+    component: () => import('@/views/Statistics.vue'),
+    meta: { title: '学习统计', requiresAuth: true }
+  },
+  {
     path: '/profile',
     name: 'Profile',
     component: () => import('@/views/Profile.vue'),

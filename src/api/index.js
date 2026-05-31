@@ -97,6 +97,12 @@ export const commentApi = {
   create: (data) => request.post('/comments', data),
 }
 
+export const statisticsApi = {
+  getDaily: (params) => request.get('/statistics/daily', { params }),
+  getStreak: (params) => request.get('/statistics/streak', { params }),
+  getCategory: (params) => request.get('/statistics/category', { params }),
+}
+
 export const followApi = {
   follow: (data) => request.post('/follows', data),
   unfollow: (params) => request.delete('/follows', { params }),

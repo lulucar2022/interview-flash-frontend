@@ -28,6 +28,7 @@ export const useUserStore = defineStore('user', {
     async register(registerForm) {
       try {
         const res = await authApi.register({
+          username: registerForm.username,
           email: registerForm.email,
           nickname: registerForm.nickname || registerForm.username,
           password: registerForm.password

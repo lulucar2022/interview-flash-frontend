@@ -19,6 +19,9 @@
         <router-link to="/wrong" class="nav-item" :class="{ active: $route.path === '/wrong' }">
           错题本
         </router-link>
+        <router-link to="/statistics" class="nav-item" :class="{ active: $route.path === '/statistics' }">
+          统计
+        </router-link>
         <router-link to="/articles" class="nav-item" :class="{ active: $route.path.startsWith('/articles') }">
           社区
         </router-link>
