@@ -113,7 +113,6 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { categoryApi, questionApi } from '@/api'
 import { ElMessage } from 'element-plus'
-import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
