@@ -66,7 +66,7 @@ const wrongQuestions = ref([])
 const loadWrongQuestions = async () => {
   loading.value = true
   try {
-    const res = await progressApi.getWrongQuestions({ userId: userStore.user.id })
+    const res = await progressApi.getWrongQuestions()
     wrongQuestions.value = res.data || []
   } catch (error) {
     ElMessage.error('加载错题失败')
@@ -82,7 +82,6 @@ const goToPractice = (questionId) => {
 const markAsCorrect = async (item) => {
   try {
     await progressApi.updateProgress(
-      { userId: userStore.user.id },
       {
         questionId: item.questionId,
         isCorrect: true,
@@ -104,10 +103,7 @@ const removeFromWrong = async (item) => {
       type: 'warning'
     })
     
-    await progressApi.resetProgress({
-      userId: userStore.user.id,
-      questionId: item.questionId
-    })
+    await progressApi.resetProgress(item.questionId)
     ElMessage.success('已移除')
     loadWrongQuestions()
   } catch (error) {

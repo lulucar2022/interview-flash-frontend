@@ -164,10 +164,7 @@ const loadQuestion = async () => {
     const res = await questionApi.getById(id)
     question.value = res.data
     
-    const progressRes = await progressApi.getProgressByQuestion({
-      userId: userStore.user.id,
-      questionId: id
-    })
+    const progressRes = await progressApi.getProgressByQuestion(id)
     isFavorite.value = progressRes.data?.isFavorite || false
   } catch (error) {
     ElMessage.error('加载题目失败')
@@ -186,7 +183,6 @@ const handleSubmitAnswer = async () => {
   
   try {
     await wrongApi.recordAnswer({
-      userId: userStore.user.id,
       questionId: question.value.id,
       userAnswer: answer,
       isCorrect: isCorrect
@@ -236,7 +232,6 @@ const toggleShowAnswer = () => {
 const toggleFavorite = async () => {
   try {
     await progressApi.updateProgress(
-      { userId: userStore.user.id },
       {
         questionId: question.value.id,
         isFavorite: !isFavorite.value
@@ -252,7 +247,6 @@ const toggleFavorite = async () => {
 const addToWrong = async () => {
   try {
     await progressApi.updateProgress(
-      { userId: userStore.user.id },
       {
         questionId: question.value.id,
         isCorrect: false

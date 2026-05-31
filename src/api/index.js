@@ -51,25 +51,25 @@ export const questionApi = {
 }
 
 export const progressApi = {
-  getProgress: (params) => request.get('/progress', { params }),
+  getProgress: () => request.get('/progress'),
   
-  getProgressByQuestion: (params) => request.get('/progress/question', { params }),
+  getProgressByQuestion: (questionId) => request.get('/progress/question', { params: { questionId } }),
   
-  getWrongQuestions: (params) => request.get('/progress/wrong', { params }),
+  getWrongQuestions: () => request.get('/progress/wrong'),
   
-  getFavorites: (params) => request.get('/progress/favorites', { params }),
+  getFavorites: () => request.get('/progress/favorites'),
   
-  getStatistics: (params) => request.get('/progress/statistics', { params }),
+  getStatistics: () => request.get('/progress/statistics'),
   
-  updateProgress: (params, data) => request.post('/progress', data, { params }),
+  updateProgress: (data) => request.post('/progress', data),
   
-  resetProgress: (params) => request.delete('/progress/reset', { params })
+  resetProgress: (questionId) => request.delete('/progress/reset', { params: { questionId } })
 }
 
 export const wrongApi = {
-  getList: (params) => request.get('/wrong', { params }),
+  getList: () => request.get('/wrong'),
   
-  getCount: (params) => request.get('/wrong/count', { params }),
+  getCount: () => request.get('/wrong/count'),
   
   recordAnswer: (params) => request.post('/wrong/record', null, { params }),
   
@@ -98,9 +98,9 @@ export const commentApi = {
 }
 
 export const statisticsApi = {
-  getDaily: (params) => request.get('/statistics/daily', { params }),
-  getStreak: (params) => request.get('/statistics/streak', { params }),
-  getCategory: (params) => request.get('/statistics/category', { params }),
+  getDaily: (days) => request.get('/statistics/daily', { params: { days } }),
+  getStreak: () => request.get('/statistics/streak'),
+  getCategory: () => request.get('/statistics/category'),
 }
 
 export const followApi = {

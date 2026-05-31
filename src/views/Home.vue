@@ -164,9 +164,9 @@ const loadData = async () => {
     const [categoriesRes, hotRes, statsRes, totalRes, streakRes] = await Promise.all([
       categoryApi.getAll(),
       questionApi.getHot({ size: 5 }),
-      progressApi.getStatistics({ userId: userStore.user.id }),
+      progressApi.getStatistics(),
       questionApi.getCount(),
-      statisticsApi.getStreak({ userId: userStore.user.id })
+      statisticsApi.getStreak()
     ])
     
     categories.value = categoriesRes.data || []

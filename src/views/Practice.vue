@@ -352,7 +352,7 @@ const submitCurrent = () => {
   if (answer === undefined || answer === '' || answer === null) return null
   const isCorrect = checkAnswer(answer, q.answer, q.type)
   results.value[q.id] = isCorrect
-  progressApi.updateProgress({ userId: userStore.user.id }, { questionId: q.id, isCorrect }).catch(() => {})
+  progressApi.updateProgress({ questionId: q.id, isCorrect }).catch(() => {})
   return isCorrect
 }
 
@@ -391,7 +391,7 @@ const handleSubmitAnswer = async () => {
   results.value[q.id] = isCorrect
   currentResult.value = isCorrect
   try {
-    await progressApi.updateProgress({ userId: userStore.user.id }, { questionId: q.id, isCorrect })
+    await progressApi.updateProgress({ questionId: q.id, isCorrect })
     showAnswer.value = true
     showResultDialog.value = true
   } catch (error) {}
@@ -411,7 +411,7 @@ const restartPractice = () => {
 const toggleFavorite = async () => {
   if (!currentQuestion.value) return
   try {
-    await progressApi.updateProgress({ userId: userStore.user.id }, { questionId: currentQuestion.value.id, isFavorite: !isFavorite.value })
+    await progressApi.updateProgress({ questionId: currentQuestion.value.id, isFavorite: !isFavorite.value })
     isFavorite.value = !isFavorite.value
     ElMessage.success(isFavorite.value ? '已收藏' : '已取消收藏')
   } catch (error) { ElMessage.error('操作失败') }

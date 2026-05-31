@@ -310,9 +310,9 @@ onMounted(async () => {
     if (!userId) return
 
     const [dailyRes, streakRes, categoryRes] = await Promise.all([
-      statisticsApi.getDaily({ userId, days: 365 }),
-      statisticsApi.getStreak({ userId }),
-      statisticsApi.getCategory({ userId })
+      statisticsApi.getDaily(365),
+      statisticsApi.getStreak(),
+      statisticsApi.getCategory()
     ])
     dailyData.value = dailyRes.data || []
     streak.value = streakRes.data || {}

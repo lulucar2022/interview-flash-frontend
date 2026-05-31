@@ -172,7 +172,7 @@ const favorites = ref([])
 
 const loadStatistics = async () => {
   try {
-    const res = await progressApi.getStatistics({ userId: userStore.user.id })
+    const res = await progressApi.getStatistics()
     statistics.value = res.data || {}
   } catch (error) {
     console.error('加载统计失败', error)
@@ -181,7 +181,7 @@ const loadStatistics = async () => {
 
 const loadFavorites = async () => {
   try {
-    const res = await progressApi.getFavorites({ userId: userStore.user.id })
+    const res = await progressApi.getFavorites()
     favorites.value = res.data || []
   } catch (error) {
     console.error('加载收藏失败', error)
@@ -209,7 +209,6 @@ const handleChangePassword = async () => {
 const removeFavorite = async (item) => {
   try {
     await progressApi.updateProgress(
-      { userId: userStore.user.id },
       { questionId: item.questionId, isFavorite: false }
     )
     ElMessage.success('已取消收藏')
