@@ -24,6 +24,10 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   response => {
     const res = response.data
+    // 文件下载类请求（blob）直接返回，不做 JSON 解析
+    if (res instanceof Blob) {
+      return res
+    }
     if (res.code !== 200) {
       ElMessage.error(res.msg || '请求失败')
       return Promise.reject(new Error(res.msg || '请求失败'))
