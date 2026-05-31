@@ -41,7 +41,7 @@
           </div>
         </div>
 
-        <div class="article-content" v-html="article.content"></div>
+        <div class="article-content" v-html="sanitizedContent"></div>
 
         <div class="tags" v-if="article.tags">
           <el-tag
@@ -99,6 +99,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import DOMPurify from 'dompurify'
 import { useRoute } from 'vue-router'
 import { articleApi, commentApi, followApi } from '@/api'
 import { useUserStore } from '@/stores/user'
@@ -114,6 +115,11 @@ const loading = ref(false)
 const commentContent = ref('')
 const commentLoading = ref(false)
 const isFollowing = ref(false)
+
+const sanitizedContent = computed(() => {
+  if (!article.value?.content) return ''
+  return DOMPurify.sanitize(article.value.content)
+})
 
 const tagList = computed(() => {
   if (!article.value?.tags) return []
