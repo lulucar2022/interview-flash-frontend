@@ -75,8 +75,8 @@ const scheduleRender = () => {
   })
 }
 
-watch(() => props.points, scheduleRender, { deep: false })
-onMounted(() => nextTick(draw))
+watch(() => props.points, () => { scheduleRender() }, { deep: true, immediate: true })
+onMounted(() => { if (props.points.length > 0) draw() })
 
 // ── 高斯模糊辅助函数（近似 3σ 盒型） ──
 function gaussianBlur(imageData, width, height, radius) {
@@ -152,7 +152,7 @@ function draw() {
   // ── Step 2: 绘制径向渐变圆，'lighter' 叠加 ──
   ctx.globalCompositeOperation = 'lighter'
 
-  // 预创建渐变模板（避免每点新建）
+  // 预创建渐变模板（translate 到圆心位置）
   const gradCache = new Map()
 
   for (const p of pts) {
@@ -161,27 +161,32 @@ function draw() {
     const cy = p.y + PADDING
     const r = bw
 
-    // 获取该权重对应的色阶颜色索引（0~1 映射）
+    // 获取该权重对应的色阶颜色索引（非线性映射，低权重更暗）
     const raw = Math.min(1, (weight / 5) * inten)
-    const colorIdx = Math.min(COLORS.length - 1, Math.floor(raw * (COLORS.length - 1)))
+    const mapped = Math.pow(raw, 0.6)
+    const colorIdx = Math.max(1, Math.min(COLORS.length - 1, Math.round(mapped * (COLORS.length - 1))))
 
-    // 从缓存获取渐变，或创建
-    let grad = gradCache.get(colorIdx)
-    if (!grad) {
+    // 从缓存获取渐变着色模板，或创建
+    let stops = gradCache.get(colorIdx)
+    if (!stops) {
       const baseColor = parseRgba(COLORS[colorIdx])
-      grad = ctx.createRadialGradient(0, 0, 0, 0, 0, r)
-      grad.addColorStop(0, `rgba(${baseColor.r},${baseColor.g},${baseColor.b},${baseColor.a})`)
-      grad.addColorStop(0.7, `rgba(${baseColor.r},${baseColor.g},${baseColor.b},${baseColor.a * 0.3})`)
-      grad.addColorStop(1, 'rgba(0,0,0,0)')
-      gradCache.set(colorIdx, grad)
+      stops = [
+        { pos: 0, color: `rgba(${baseColor.r},${baseColor.g},${baseColor.b},${baseColor.a})` },
+        { pos: 0.5, color: `rgba(${baseColor.r},${baseColor.g},${baseColor.b},${baseColor.a * 0.4})` },
+        { pos: 1, color: 'rgba(0,0,0,0)' }
+      ]
+      gradCache.set(colorIdx, stops)
     }
 
-    // 性能优化：跳过完全透明点
-    // 在 5000 点下，单次 fill 约 0.01-0.02ms，整体可控
+    ctx.save()
+    ctx.translate(cx, cy)
+    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, r)
+    stops.forEach(s => grad.addColorStop(s.pos, s.color))
     ctx.beginPath()
-    ctx.arc(cx, cy, r, 0, Math.PI * 2)
+    ctx.arc(0, 0, r, 0, Math.PI * 2)
     ctx.fillStyle = grad
     ctx.fill()
+    ctx.restore()
   }
 
   ctx.globalCompositeOperation = 'source-over'

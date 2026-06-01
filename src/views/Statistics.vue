@@ -109,13 +109,14 @@ const masteredCategories = computed(() =>
 
 // ---- 活跃度热力图 ----
 const heatmapPoints = computed(() => {
-  return dailyData.value
-    .filter(d => d.count > 0)
-    .map((d, i) => ({
-      x: i * (720 / Math.max(1, dailyData.value.length)),
-      y: 100,
-      weight: d.count
-    }))
+  const filtered = dailyData.value.filter(d => d.count > 0)
+  return filtered.map((d, i) => ({
+    // x: 时间轴位置，均匀分布在 720 像素宽度上
+    x: filtered.length > 1 ? (i / (filtered.length - 1)) * 700 : 360,
+    // y: 基于 count 和 correct 产生上下分布，加少量随机抖动避免完全对齐
+    y: 100 + (d.correct / Math.max(1, d.count) - 0.5) * 60 + (i % 3 - 1) * 8,
+    weight: d.count
+  }))
 })
 
 // ---- 折线图 ----
