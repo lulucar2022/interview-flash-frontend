@@ -46,18 +46,13 @@
       </el-col>
     </el-row>
 
-    <!-- 日历热力图 -->
+    <!-- 密度热力图 -->
     <div class="section">
       <div class="section-header">
-        <h2>📅 学习日历</h2>
-        <el-radio-group v-model="calendarMode" size="small" @change="onCalendarModeChange">
-          <el-radio-button value="month">月视图</el-radio-button>
-          <el-radio-button value="week">周视图</el-radio-button>
-        </el-radio-group>
+        <h2>🔥 活跃度热力图</h2>
+        <span class="section-desc">核密度估计 · 高斯平滑 · 感知均匀色阶</span>
       </div>
-      <div class="calendar-wrapper">
-        <v-chart :option="calendarOption" autoresize style="height: 220px" />
-      </div>
+      <HeatmapCanvas :points="heatmapPoints" :width="720" :height="200" />
     </div>
 
     <!-- 折线图 + 饼图 -->
@@ -85,19 +80,19 @@ import { statisticsApi } from '@/api'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { HeatmapChart, LineChart, PieChart } from 'echarts/charts'
+import { LineChart, PieChart } from 'echarts/charts'
 import {
-  TitleComponent, TooltipComponent, GridComponent, VisualMapComponent,
-  LegendComponent, CalendarComponent
+  TitleComponent, TooltipComponent, GridComponent,
+  LegendComponent
 } from 'echarts/components'
+import HeatmapCanvas from '@/components/HeatmapCanvas.vue'
 
-use([CanvasRenderer, HeatmapChart, LineChart, PieChart,
-  TitleComponent, TooltipComponent, GridComponent, VisualMapComponent,
-  LegendComponent, CalendarComponent])
+use([CanvasRenderer, LineChart, PieChart,
+  TitleComponent, TooltipComponent, GridComponent,
+  LegendComponent])
 
 const userStore = useUserStore()
 
-const calendarMode = ref(localStorage.getItem('stats-calendar-mode') || 'month')
 const dailyData = ref([])
 const categoryData = ref([])
 const streak = ref({ currentStreak: 0, maxStreak: 0 })
@@ -112,142 +107,15 @@ const masteredCategories = computed(() =>
   categoryData.value.filter(c => c.total > 0 && c.mastered / c.total >= 0.8).length
 )
 
-function onCalendarModeChange(val) {
-  localStorage.setItem('stats-calendar-mode', val)
-}
-
-// ---- 日历热力图 ----
-const calendarOption = computed(() => {
-  const dates = dailyData.value
-  const data = dates
+// ---- 活跃度热力图 ----
+const heatmapPoints = computed(() => {
+  return dailyData.value
     .filter(d => d.count > 0)
-    .map(d => [d.date, d.count])
-
-  const maxVal = Math.max(1, ...data.map(d => d[1]))
-  const today = new Date()
-  const year = today.getFullYear()
-
-  if (calendarMode.value === 'month') {
-    // 月视图：12 个月的行
-    const months = []
-    const monthDays = []
-    for (let m = 0; m < 12; m++) {
-      const start = new Date(year, m, 1)
-      const end = new Date(year, m + 1, 0)
-      const dayCount = end.getDate()
-      monthDays.push(dayCount)
-      // yAxis category: month name
-      months.push(`${m + 1}月`)
-    }
-    const maxDays = Math.max(...monthDays)
-
-    // Build grid data: [dayIdx, monthIdx, value]
-    const gridData = []
-    for (let m = 0; m < 12; m++) {
-      for (let d = 1; d <= maxDays; d++) {
-        const dateStr = `${year}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-        const found = dates.find(item => item.date === dateStr)
-        gridData.push([d - 1, m, found ? found.count : -1])
-      }
-    }
-
-    return {
-      tooltip: {
-        position: 'top',
-        formatter: p => {
-          if (!p.data || p.data[2] === -1) return ''
-          const dateStr = `${year}-${String(p.data[1] + 1).padStart(2, '0')}-${String(p.data[0] + 1).padStart(2, '0')}`
-          return `${dateStr}<br/>${p.data[2]} 道题`
-        }
-      },
-      grid: { left: 50, right: 20, top: 10, bottom: 10 },
-      xAxis: {
-        type: 'category',
-        data: Array.from({ length: maxDays }, (_, i) => i + 1),
-        axisLabel: { fontSize: 10 },
-        splitArea: { show: true }
-      },
-      yAxis: {
-        type: 'category',
-        data: months,
-        axisLabel: { fontSize: 11 },
-        splitArea: { show: true }
-      },
-      visualMap: {
-        min: 0, max: maxVal,
-        calculable: true,
-        orient: 'vertical',
-        right: 0, top: 'center',
-        inRange: { color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'] },
-        pieces: [
-          { min: 0, max: 0, color: '#f0f0f0' },
-          { min: 1, max: Math.ceil(maxVal * 0.25), color: '#c6e48b' },
-          { min: Math.ceil(maxVal * 0.25) + 1, max: Math.ceil(maxVal * 0.5), color: '#7bc96f' },
-          { min: Math.ceil(maxVal * 0.5) + 1, max: Math.ceil(maxVal * 0.75), color: '#239a3b' },
-          { min: Math.ceil(maxVal * 0.75) + 1, max: maxVal, color: '#196127' }
-        ]
-      },
-      series: [{
-        type: 'heatmap',
-        data: gridData,
-        label: { show: false },
-        emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0, 0, 0, 0.3)' } }
-      }]
-    }
-  } else {
-    // 周视图：7 行（周一~周日），列按周数
-    const weeks = []
-    const now = new Date()
-    const startOfYear = new Date(year, 0, 1)
-    const daysFromStart = Math.floor((now - startOfYear) / 86400000)
-    const totalWeeks = Math.ceil(daysFromStart / 7)
-
-    const gridData = []
-    // Monday=0, Sunday=6
-    for (let w = 0; w <= totalWeeks; w++) {
-      for (let dow = 0; dow < 7; dow++) {
-        const date = new Date(year, 0, 1 + w * 7 + dow - startOfYear.getDay() + 1)
-        if (date.getFullYear() !== year) continue
-        const dateStr = date.toISOString().split('T')[0]
-        const found = dates.find(item => item.date === dateStr)
-        if (found) {
-          gridData.push([w, dow, found.count])
-        }
-      }
-    }
-
-    return {
-      tooltip: {
-        position: 'top',
-        formatter: p => p.data ? `${dailyData.value[p.data[4]?.split?.('T')?.[0]] || ''}<br/>${p.data[2] || 0} 道题` : ''
-      },
-      grid: { left: 45, right: 20, top: 10, bottom: 10 },
-      xAxis: {
-        type: 'category',
-        data: Array.from({ length: totalWeeks + 1 }, (_, i) => `W${i + 1}`),
-        axisLabel: { fontSize: 10, rotate: 45 },
-        splitArea: { show: true }
-      },
-      yAxis: {
-        type: 'category',
-        data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-        axisLabel: { fontSize: 11 },
-        splitArea: { show: true }
-      },
-      visualMap: {
-        min: 0, max: maxVal,
-        calculable: true,
-        orient: 'vertical',
-        right: 0, top: 'center',
-        inRange: { color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'] }
-      },
-      series: [{
-        type: 'heatmap',
-        data: gridData,
-        label: { show: false }
-      }]
-    }
-  }
+    .map((d, i) => ({
+      x: i * (720 / Math.max(1, dailyData.value.length)),
+      y: 100,
+      weight: d.count
+    }))
 })
 
 // ---- 折线图 ----
@@ -400,7 +268,8 @@ onMounted(async () => {
   margin: 0;
 }
 
-.calendar-wrapper {
-  overflow-x: auto;
+.section-desc {
+  font-size: 12px;
+  color: #c0c4cc;
 }
 </style>
