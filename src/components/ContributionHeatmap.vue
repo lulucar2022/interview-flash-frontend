@@ -5,7 +5,7 @@
       <span class="spacer" />
       <div class="month-area">
         <span
-          v-for="ml in monthLabels"
+          v-for="ml in gridData.monthLabels"
           :key="ml.col"
           class="month-label"
           :style="{ left: ml.left + 'px' }"
@@ -31,7 +31,7 @@
         @mouseleave="hideTooltip"
       >
         <div
-          v-for="cell in cells"
+          v-for="cell in gridData.cells"
           :key="cell.key"
           class="cell"
           :class="`l${cell.level}`"
@@ -105,7 +105,7 @@ const dateMap = computed(() => {
   return map
 })
 
-const { cells, monthLabels } = computed(() => {
+const gridData = computed(() => {
   const map = dateMap.value
   const now = new Date()
   const currMon = getMonday(now)
