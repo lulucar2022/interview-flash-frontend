@@ -49,10 +49,10 @@
     <!-- 密度热力图 -->
     <div class="section">
       <div class="section-header">
-        <h2>🔥 活跃度热力图</h2>
-        <span class="section-desc">核密度估计 · 高斯平滑 · 感知均匀色阶</span>
+        <h2>🔥 学习活跃度</h2>
+        <span class="section-desc">近 365 天每日答题统计</span>
       </div>
-      <HeatmapCanvas :points="heatmapPoints" :width="720" :height="200" />
+      <ContributionHeatmap :data="dailyData" />
     </div>
 
     <!-- 折线图 + 饼图 -->
@@ -85,7 +85,7 @@ import {
   TitleComponent, TooltipComponent, GridComponent,
   LegendComponent
 } from 'echarts/components'
-import HeatmapCanvas from '@/components/HeatmapCanvas.vue'
+import ContributionHeatmap from '@/components/ContributionHeatmap.vue'
 
 use([CanvasRenderer, LineChart, PieChart,
   TitleComponent, TooltipComponent, GridComponent,
@@ -106,18 +106,6 @@ const accuracyRate = computed(() => {
 const masteredCategories = computed(() =>
   categoryData.value.filter(c => c.total > 0 && c.mastered / c.total >= 0.8).length
 )
-
-// ---- 活跃度热力图 ----
-const heatmapPoints = computed(() => {
-  const filtered = dailyData.value.filter(d => d.count > 0)
-  return filtered.map((d, i) => ({
-    // x: 时间轴位置，均匀分布在 720 像素宽度上
-    x: filtered.length > 1 ? (i / (filtered.length - 1)) * 700 : 360,
-    // y: 基于 count 和 correct 产生上下分布，加少量随机抖动避免完全对齐
-    y: 100 + (d.correct / Math.max(1, d.count) - 0.5) * 60 + (i % 3 - 1) * 8,
-    weight: d.count
-  }))
-})
 
 // ---- 折线图 ----
 const trendOption = computed(() => {
