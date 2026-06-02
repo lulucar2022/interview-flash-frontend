@@ -5,9 +5,11 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import App from './App.vue'
 import router from './router'
 import pinia from './stores'
+import tilt from './directives/tilt'
 
 const app = createApp(App)
 
+app.directive('tilt', tilt)
 app.use(pinia)
 app.use(router)
 app.use(ElementPlus, { locale: zhCn })

@@ -5,7 +5,7 @@
     <!-- 概览卡片 -->
     <el-row :gutter="20" class="overview-row">
       <el-col :span="6">
-        <div class="stat-card">
+        <div class="stat-card" v-tilt>
           <div class="stat-icon" style="background: #409EFF;">🔥</div>
           <div class="stat-info">
             <div class="stat-value">{{ streak.currentStreak || 0 }}</div>
@@ -15,7 +15,7 @@
         </div>
       </el-col>
       <el-col :span="6">
-        <div class="stat-card">
+        <div class="stat-card" v-tilt>
           <div class="stat-icon" style="background: #67C23A;">✅</div>
           <div class="stat-info">
             <div class="stat-value">{{ Math.round(accuracyRate) }}%</div>
@@ -25,7 +25,7 @@
         </div>
       </el-col>
       <el-col :span="6">
-        <div class="stat-card">
+        <div class="stat-card" v-tilt>
           <div class="stat-icon" style="background: #E6A23C;">📊</div>
           <div class="stat-info">
             <div class="stat-value">{{ totalAnswered }}</div>
@@ -35,7 +35,7 @@
         </div>
       </el-col>
       <el-col :span="6">
-        <div class="stat-card">
+        <div class="stat-card" v-tilt>
           <div class="stat-icon" style="background: #909399;">🏷️</div>
           <div class="stat-info">
             <div class="stat-value">{{ categoryData.length }}</div>
