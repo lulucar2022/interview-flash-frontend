@@ -1,8 +1,8 @@
 <template>
-  <div class="contribution-heatmap">
+  <div class="contribution-heatmap" :style="{ width: totalWidth + 'px' }">
     <!-- Month labels -->
     <div class="month-row">
-      <span class="spacer" />
+      <span class="spacer" :style="{ width: labelWidth + 'px' }" />
       <div class="month-area">
         <span
           v-for="ml in gridData.monthLabels"
@@ -161,6 +161,7 @@ const dayLabels = [
 
 const gridWidth = computed(() => NUM_WEEKS * STEP)
 const gridHeight = computed(() => 7 * STEP)
+const totalWidth = computed(() => props.labelWidth + gridWidth.value)
 
 // ---- Tooltip ----
 const tip = reactive({
@@ -203,11 +204,11 @@ const tipStyle = computed(() => {
   --cell-size: 13px;
   --gap: 3px;
   --step: calc(var(--cell-size) + var(--gap));
+  margin: 0 auto;
 }
 
 .month-row {
   display: flex;
-  justify-content: center;
   margin-bottom: 4px;
 }
 
@@ -229,7 +230,6 @@ const tipStyle = computed(() => {
 
 .body-row {
   display: flex;
-  justify-content: center;
 }
 
 .day-labels {
@@ -274,7 +274,6 @@ const tipStyle = computed(() => {
 
 .legend-row {
   display: flex;
-  justify-content: center;
   align-items: center;
   margin-top: 8px;
 }
