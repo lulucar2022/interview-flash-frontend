@@ -151,8 +151,12 @@ const gridData = computed(() => {
 
 const dayLabels = [
   { row: 0, text: '一', top: 0 },
+  { row: 1, text: '二', top: 1 * STEP },
   { row: 2, text: '三', top: 2 * STEP },
+  { row: 3, text: '四', top: 3 * STEP },
   { row: 4, text: '五', top: 4 * STEP },
+  { row: 5, text: '六', top: 5 * STEP },
+  { row: 6, text: '日', top: 6 * STEP },
 ]
 
 const gridWidth = computed(() => NUM_WEEKS * STEP)
@@ -203,6 +207,7 @@ const tipStyle = computed(() => {
 
 .month-row {
   display: flex;
+  justify-content: center;
   margin-bottom: 4px;
 }
 
@@ -224,6 +229,7 @@ const tipStyle = computed(() => {
 
 .body-row {
   display: flex;
+  justify-content: center;
 }
 
 .day-labels {
@@ -268,6 +274,7 @@ const tipStyle = computed(() => {
 
 .legend-row {
   display: flex;
+  justify-content: center;
   align-items: center;
   margin-top: 8px;
 }
