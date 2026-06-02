@@ -107,7 +107,7 @@ const loading = ref(false)
 
 const loginForm = reactive({
   username: localStorage.getItem('remember_username') || '',
-  password: localStorage.getItem('remember_password') || '',
+  password: '',
   remember: !!localStorage.getItem('remember_username')
 })
 
@@ -162,10 +162,8 @@ const handleLogin = async () => {
         
         if (loginForm.remember) {
           localStorage.setItem('remember_username', loginForm.username)
-          localStorage.setItem('remember_password', loginForm.password)
         } else {
           localStorage.removeItem('remember_username')
-          localStorage.removeItem('remember_password')
         }
         
         if (success) {

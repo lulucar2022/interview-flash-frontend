@@ -20,9 +20,9 @@
         <div class="filter-item">
           <label class="filter-label">难度</label>
           <el-select v-model="selectedDifficulty" placeholder="选择难度" clearable @change="handleFilterChange">
-            <el-option label="简单" value="LOW" />
+            <el-option label="简单" value="EASY" />
             <el-option label="中等" value="MEDIUM" />
-            <el-option label="困难" value="HIGH" />
+            <el-option label="困难" value="HARD" />
           </el-select>
         </div>
       </div>

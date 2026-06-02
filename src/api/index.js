@@ -43,7 +43,7 @@ export const questionApi = {
   
   search: (params) => request.get('/questions/search', { params }),
   
-  create: (data) => request.post('/questions', data),
+  create: (data) => request.post('/admin/questions', data),
 
   importFile: (file) => {
     const formData = new FormData()
@@ -55,9 +55,9 @@ export const questionApi = {
 
   downloadTemplate: () => request.get('/admin/questions/import/template', { responseType: 'blob' }),
 
-  update: (id, data) => request.put(`/questions/${id}`, data),
+  update: (id, data) => request.put(`/admin/questions/${id}`, data),
   
-  delete: (id) => request.delete(`/questions/${id}`)
+  delete: (id) => request.delete(`/admin/questions/${id}`)
 }
 
 export const progressApi = {
@@ -90,6 +90,8 @@ export const authApi = {
   login: (data) => request.post('/auth/login', data),
   register: (data) => request.post('/auth/register', data),
   getMe: () => request.get('/auth/me'),
+  updateProfile: (data) => request.put('/auth/profile', data),
+  changePassword: (data) => request.put('/auth/password', data),
 }
 
 export const articleApi = {
@@ -103,8 +105,8 @@ export const topicApi = {
 }
 
 export const commentApi = {
-  getByArticle: (params) => request.get('/comments', { params }),
-  create: (data) => request.post('/comments', data),
+  getByArticle: (params) => request.get(`/articles/${params.articleId}/comments`),
+  create: (data) => request.post(`/articles/${data.articleId}/comments`, { content: data.content, parentId: data.parentId }),
 }
 
 export const statisticsApi = {

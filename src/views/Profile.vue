@@ -123,7 +123,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { progressApi } from '@/api'
+import { progressApi, authApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -188,9 +188,18 @@ const loadFavorites = async () => {
   }
 }
 
-const handleUpdateProfile = () => {
-  userStore.updateUser(profileForm)
-  ElMessage.success('个人信息已更新')
+const handleUpdateProfile = async () => {
+  try {
+    const res = await authApi.updateProfile({
+      nickname: profileForm.nickname,
+      avatarUrl: profileForm.avatarUrl,
+      bio: profileForm.bio
+    })
+    userStore.updateUser(res.data)
+    ElMessage.success('个人信息已更新')
+  } catch {
+    ElMessage.error('更新失败')
+  }
 }
 
 const handleChangePassword = async () => {
@@ -198,10 +207,18 @@ const handleChangePassword = async () => {
   
   await passwordFormRef.value.validate(async (valid) => {
     if (valid) {
-      ElMessage.success('密码修改成功')
-      passwordForm.oldPassword = ''
-      passwordForm.newPassword = ''
-      passwordForm.confirmPassword = ''
+      try {
+        await authApi.changePassword({
+          oldPassword: passwordForm.oldPassword,
+          newPassword: passwordForm.newPassword
+        })
+        ElMessage.success('密码修改成功')
+        passwordForm.oldPassword = ''
+        passwordForm.newPassword = ''
+        passwordForm.confirmPassword = ''
+      } catch {
+        ElMessage.error('密码修改失败')
+      }
     }
   })
 }
