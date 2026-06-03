@@ -1,7 +1,7 @@
 <template>
   <div class="practice-container page-container">
     <!-- 配置面板 -->
-    <div v-if="!started" class="setup-card">
+    <div v-if="!started" class="setup-card" v-tilt>
       <h1>⚡ 在线刷题</h1>
       <p class="setup-desc">选择题目条件或全随机出题</p>
       
@@ -62,7 +62,7 @@
       </div>
 
       <div v-if="currentQuestion" class="practice-content">
-        <div class="question-card">
+        <div class="question-card" v-tilt>
           <div class="question-header">
             <h2>{{ currentQuestion.title }}</h2>
             <div class="question-meta">
@@ -80,7 +80,7 @@
           </div>
         </div>
         
-        <div class="answer-card">
+        <div class="answer-card" v-tilt>
           <h3>你的答案</h3>
           
           <!-- 单选题 -->

@@ -30,7 +30,7 @@
     
     <el-row :gutter="20" class="quick-actions">
       <el-col :span="12">
-        <div class="action-card action-primary" @click="$router.push('/practice')">
+        <div class="action-card action-primary" v-tilt @click="$router.push('/practice')">
           <div class="action-icon">🚀</div>
           <div class="action-info">
             <div class="action-title">开始刷题</div>
@@ -39,7 +39,7 @@
         </div>
       </el-col>
       <el-col :span="12">
-        <div class="action-card action-secondary" @click="$router.push('/wrong')">
+        <div class="action-card action-secondary" v-tilt @click="$router.push('/wrong')">
           <div class="action-icon">📝</div>
           <div class="action-info">
             <div class="action-title">查看错题本</div>
@@ -52,7 +52,7 @@
     <div class="stats-section">
       <el-row :gutter="20">
         <el-col :span="8">
-          <div class="stat-card">
+          <div class="stat-card" v-tilt>
             <div class="stat-icon" style="background: #409EFF;">📚</div>
             <div class="stat-info">
               <div class="stat-value">{{ statistics.totalQuestions || 0 }}</div>
@@ -62,7 +62,7 @@
           </div>
         </el-col>
         <el-col :span="8">
-          <div class="stat-card">
+          <div class="stat-card" v-tilt>
             <div class="stat-icon" style="background: #67C23A;">✅</div>
             <div class="stat-info">
               <div class="stat-value">{{ Math.round(parseFloat(statistics.progressRate || 0)) }}%</div>
@@ -72,7 +72,7 @@
           </div>
         </el-col>
         <el-col :span="8">
-          <div class="stat-card">
+          <div class="stat-card" v-tilt>
             <div class="stat-icon" style="background: #F56C6C;">❌</div>
             <div class="stat-info">
               <div class="stat-value">{{ statistics.wrongCount || 0 }}</div>

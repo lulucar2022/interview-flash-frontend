@@ -47,7 +47,7 @@
     </el-row>
 
     <!-- 密度热力图 -->
-    <div class="section">
+    <div class="section" v-tilt>
       <div class="section-header">
         <h2>🔥 学习活跃度</h2>
         <span class="section-desc">近 365 天每日答题统计</span>
@@ -58,13 +58,13 @@
     <!-- 折线图 + 饼图 -->
     <el-row :gutter="20">
       <el-col :span="14">
-        <div class="section">
+        <div class="section" v-tilt>
           <div class="section-header"><h2>📈 正确率趋势</h2></div>
           <v-chart :option="trendOption" autoresize style="height: 300px" />
         </div>
       </el-col>
       <el-col :span="10">
-        <div class="section">
+        <div class="section" v-tilt>
           <div class="section-header"><h2>🥧 分类分布</h2></div>
           <v-chart :option="categoryOption" autoresize style="height: 300px" />
         </div>

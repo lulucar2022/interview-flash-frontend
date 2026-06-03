@@ -32,6 +32,7 @@
       <div
         v-for="question in questions"
         :key="question.id"
+        v-tilt
         class="question-card"
         @click="goToQuestion(question.id)"
       >

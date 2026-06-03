@@ -14,12 +14,12 @@
         </div>
       </div>
       
-      <div class="question-content card">
+      <div class="question-content card" v-tilt>
         <h2>题目描述</h2>
         <div class="content-text">{{ question.content }}</div>
       </div>
       
-      <div class="answer-section card">
+      <div class="answer-section card" v-tilt>
         <div class="answer-header">
           <h2>我的答案</h2>
         </div>

@@ -14,7 +14,7 @@
     
     <el-row :gutter="20">
       <el-col :span="16">
-        <div class="profile-card">
+        <div class="profile-card" v-tilt>
           <h3>基本信息</h3>
           <el-form
             ref="formRef"
@@ -41,7 +41,7 @@
           </el-form>
         </div>
         
-        <div class="profile-card">
+        <div class="profile-card" v-tilt>
           <h3>修改密码</h3>
           <el-form
             ref="passwordFormRef"
@@ -65,10 +65,26 @@
             </el-form-item>
           </el-form>
         </div>
+
+        <div class="profile-card" v-tilt>
+          <h3>我的文章</h3>
+          <div class="my-articles-list">
+            <div
+              v-for="item in myArticles"
+              :key="item.id"
+              class="my-article-item"
+              @click="$router.push(`/articles/${item.id}`)"
+            >
+              <span class="article-title">{{ item.title }}</span>
+              <span class="article-date">{{ formatDate(item.updatedAt || item.createdAt) }}</span>
+            </div>
+            <el-empty v-if="myArticles.length === 0" description="暂无文章" :image-size="60" />
+          </div>
+        </div>
       </el-col>
       
       <el-col :span="8">
-        <div class="profile-card stats-card">
+        <div class="profile-card stats-card" v-tilt>
           <h3>学习统计</h3>
           <div class="stats-list">
             <div class="stat-item">
@@ -90,7 +106,7 @@
           </div>
         </div>
         
-        <div class="profile-card">
+        <div class="profile-card" v-tilt>
           <h3>我的收藏</h3>
           <div class="favorites-list">
             <div
@@ -108,7 +124,7 @@
           </div>
         </div>
         
-        <div class="profile-card danger-zone">
+        <div class="profile-card danger-zone" v-tilt>
           <h3>危险区域</h3>
           <el-button type="danger" plain @click="handleLogout">
             退出登录
@@ -123,7 +139,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { progressApi, authApi } from '@/api'
+import { progressApi, authApi, articleApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -169,6 +185,7 @@ const passwordRules = {
 
 const statistics = ref({})
 const favorites = ref([])
+const myArticles = ref([])
 
 const loadStatistics = async () => {
   try {
@@ -186,6 +203,20 @@ const loadFavorites = async () => {
   } catch (error) {
     console.error('加载收藏失败', error)
   }
+}
+
+const loadMyArticles = async () => {
+  try {
+    const res = await articleApi.getMyList({ page: 0, size: 10 })
+    myArticles.value = res.data?.content || []
+  } catch (error) {
+    console.error('加载文章失败', error)
+  }
+}
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  return dateStr.slice(0, 10)
 }
 
 const handleUpdateProfile = async () => {
@@ -247,6 +278,7 @@ onMounted(() => {
   
   loadStatistics()
   loadFavorites()
+  loadMyArticles()
 })
 </script>
 
@@ -375,5 +407,42 @@ onMounted(() => {
 
 .danger-zone {
   border: 1px solid #fde2e2;
+}
+
+.my-articles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.my-article-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f5f7fa;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.my-article-item:hover {
+  background: #ecf5ff;
+}
+
+.article-title {
+  color: #303133;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.article-date {
+  color: #909399;
+  font-size: 12px;
+  margin-left: 12px;
+  flex-shrink: 0;
 }
 </style>
