@@ -2,7 +2,7 @@
   <div class="page-container">
     <div class="article-list-layout">
       <div class="sidebar">
-        <div class="sidebar-card">
+        <div class="sidebar-card" v-tilt>
           <div class="sidebar-header">
             <h3>话题分类</h3>
           </div>
@@ -31,6 +31,41 @@
       </div>
 
       <div class="main-content">
+        <div class="main-toolbar">
+          <div class="tabs">
+            <span
+              class="tab"
+              :class="{ active: currentTab === 'latest' }"
+              @click="switchTab('latest')"
+            >最新</span>
+            <span
+              class="tab"
+              :class="{ active: currentTab === 'hot' }"
+              @click="switchTab('hot')"
+            >热门</span>
+            <span
+              v-if="userStore.user"
+              class="tab"
+              :class="{ active: currentTab === 'drafts' }"
+              @click="switchTab('drafts')"
+            >草稿箱</span>
+          </div>
+          <div class="search-bar">
+            <el-input
+              v-model="searchKeyword"
+              placeholder="搜索文章..."
+              clearable
+              size="default"
+              @keyup.enter="handleSearch"
+              @clear="handleClearSearch"
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
+          </div>
+        </div>
+
         <div v-if="loading" class="text-center" style="padding: 40px">
           <el-icon class="is-loading" :size="32"><Loading /></el-icon>
         </div>
@@ -43,14 +78,15 @@
           <div
             v-for="article in articles"
             :key="article.id"
+            v-tilt
             class="article-card card"
             @click="$router.push(`/articles/${article.id}`)"
           >
             <div class="article-main">
               <h3 class="article-title">{{ article.title }}</h3>
               <div class="article-meta">
-                <span class="author">{{ article.authorNickname || article.authorName }}</span>
-                <span class="topic-tag">{{ article.topicName }}</span>
+                <span class="author">{{ article.author?.nickname || article.author?.username }}</span>
+                <span class="topic-tag">{{ article.topic?.topicName }}</span>
                 <span class="meta-item">
                   <el-icon><Star /></el-icon>
                   {{ article.thumbsUpCount || 0 }}
@@ -86,7 +122,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { articleApi, topicApi } from '@/api'
-import { Loading, Star, ChatDotRound, View } from '@element-plus/icons-vue'
+import { Loading, Star, ChatDotRound, View, Search } from '@element-plus/icons-vue'
+
+import { useUserStore } from '@/stores/user'
 
 const articles = ref([])
 const topics = ref([])
@@ -96,28 +134,60 @@ const pageSize = 10
 const total = ref(0)
 const totalPages = ref(0)
 const currentTopicId = ref('')
+const currentTab = ref('latest')
+const searchKeyword = ref('')
+const isSearching = ref(false)
+const isDrafts = ref(false)
+
+const userStore = useUserStore()
 
 const fetchArticles = async () => {
+  if (currentTab.value === 'drafts') {
+    await fetchDrafts()
+    return
+  }
   loading.value = true
   try {
     const params = {
-      page: currentPage.value,
-      size: pageSize,
-      status: 'PUBLISHED'
+      page: currentPage.value - 1,
+      size: pageSize
     }
-    if (currentTopicId.value) {
-      params.topicId = currentTopicId.value
-    }
-    const res = await articleApi.getList(params)
-    const data = res.data
-    if (Array.isArray(data)) {
-      articles.value = data
-    } else if (data.content) {
-      articles.value = data.content
-      total.value = data.totalElements || data.total || 0
-      totalPages.value = data.totalPages || 0
+    if (isSearching.value && searchKeyword.value.trim()) {
+      params.q = searchKeyword.value.trim()
+      const res = await articleApi.search(params)
+      const data = res.data
+      if (data.content) {
+        articles.value = data.content
+        total.value = data.totalElements || data.total || 0
+        totalPages.value = data.totalPages || 0
+      } else {
+        articles.value = Array.isArray(data) ? data : []
+      }
+    } else if (currentTab.value === 'hot') {
+      const res = await articleApi.getHot(params)
+      const data = res.data
+      if (data.content) {
+        articles.value = data.content
+        total.value = data.totalElements || data.total || 0
+        totalPages.value = data.totalPages || 0
+      } else {
+        articles.value = Array.isArray(data) ? data : []
+      }
     } else {
-      articles.value = []
+      if (currentTopicId.value) {
+        params.topicId = currentTopicId.value
+      }
+      const res = await articleApi.getList(params)
+      const data = res.data
+      if (Array.isArray(data)) {
+        articles.value = data
+      } else if (data.content) {
+        articles.value = data.content
+        total.value = data.totalElements || data.total || 0
+        totalPages.value = data.totalPages || 0
+      } else {
+        articles.value = []
+      }
     }
   } catch {
     articles.value = []
@@ -137,6 +207,50 @@ const fetchTopics = async () => {
 
 const filterByTopic = (topicId) => {
   currentTopicId.value = topicId
+  currentTab.value = 'latest'
+  isSearching.value = false
+  searchKeyword.value = ''
+  currentPage.value = 1
+  fetchArticles()
+}
+
+const switchTab = (tab) => {
+  currentTab.value = tab
+  isSearching.value = false
+  searchKeyword.value = ''
+  currentPage.value = 1
+  fetchArticles()
+}
+
+const fetchDrafts = async () => {
+  loading.value = true
+  try {
+    const params = { page: currentPage.value - 1, size: pageSize }
+    const res = await articleApi.getMyDrafts(params)
+    const data = res.data
+    if (data.content) {
+      articles.value = data.content
+      total.value = data.totalElements || data.total || 0
+      totalPages.value = data.totalPages || 0
+    } else {
+      articles.value = []
+    }
+  } catch {
+    articles.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleSearch = () => {
+  if (!searchKeyword.value.trim()) return
+  isSearching.value = true
+  currentPage.value = 1
+  fetchArticles()
+}
+
+const handleClearSearch = () => {
+  isSearching.value = false
   currentPage.value = 1
   fetchArticles()
 }
@@ -221,6 +335,47 @@ onMounted(() => {
 .main-content {
   flex: 1;
   min-width: 0;
+}
+
+.main-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.tab {
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  color: #409EFF;
+}
+
+.tab.active {
+  background: #fff;
+  color: #409EFF;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.search-bar {
+  width: 260px;
 }
 
 .article-card {
