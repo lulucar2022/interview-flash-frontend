@@ -75,6 +75,12 @@ const routes = [
     meta: { title: '文章详情', requiresAuth: true }
   },
   {
+    path: '/author/:id',
+    name: 'AuthorProfile',
+    component: () => import('@/views/community/AuthorProfile.vue'),
+    meta: { title: '作者主页', requiresAuth: false }
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/'
   }

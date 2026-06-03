@@ -13,7 +13,7 @@
         <h1 class="detail-title">{{ article.title }}</h1>
 
         <div class="detail-meta">
-          <div class="author-info">
+          <router-link class="author-info" :to="'/author/' + article.author?.id">
             <el-avatar :size="40" :src="article.author?.avatarUrl">
               {{ (article.author?.nickname || 'U')[0] }}
             </el-avatar>
@@ -21,7 +21,7 @@
               <span class="author-name">{{ article.author?.nickname }}</span>
               <span class="publish-date">{{ formatDate(article.createdAt) }}</span>
             </div>
-          </div>
+          </router-link>
           <div class="meta-actions">
             <span class="topic-badge">{{ article.topic?.topicName }}</span>
             <span class="meta-stat like-btn" :class="{ liked: isLiked }" @click="handleLike">
@@ -314,6 +314,12 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.author-info:hover .author-name {
+  color: #409EFF;
 }
 
 .author-text {

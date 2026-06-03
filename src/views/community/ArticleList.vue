@@ -85,7 +85,11 @@
             <div class="article-main">
               <h3 class="article-title">{{ article.title }}</h3>
               <div class="article-meta">
-                <span class="author">{{ article.author?.nickname || article.author?.username }}</span>
+                <router-link
+                  class="author"
+                  :to="'/author/' + article.author?.id"
+                  @click.stop
+                >{{ article.author?.nickname || article.author?.username }}</router-link>
                 <span class="topic-tag">{{ article.topic?.topicName }}</span>
                 <span class="meta-item">
                   <el-icon><Star /></el-icon>
@@ -407,6 +411,11 @@ onMounted(() => {
 .author {
   color: #409EFF;
   font-weight: 500;
+  text-decoration: none;
+}
+
+.author:hover {
+  color: #66b1ff;
 }
 
 .topic-tag {

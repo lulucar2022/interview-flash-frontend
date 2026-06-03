@@ -13,7 +13,9 @@ export const userApi = {
   
   updateUser: (id, data) => request.put(`/users/${id}`, data),
   
-  deleteUser: (id) => request.delete(`/users/${id}`)
+  deleteUser: (id) => request.delete(`/users/${id}`),
+  getAuthorProfile: (id) => request.get(`/users/${id}/profile`),
+  getAuthorArticles: (id, params) => request.get(`/users/${id}/articles`, { params }),
 }
 
 export const categoryApi = {
