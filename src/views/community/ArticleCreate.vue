@@ -1,7 +1,7 @@
 <template>
   <div class="page-container">
-    <div class="create-card">
-      <h2 class="page-title" style="margin-bottom: 24px">发布文章</h2>
+    <div class="create-card" v-tilt>
+      <h2 class="page-title" style="margin-bottom: 24px">{{ isEdit ? '编辑文章' : '发布文章' }}</h2>
 
       <el-form
         ref="formRef"
@@ -51,10 +51,15 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" :loading="submitting" @click="handleSubmit">
-            发布文章
+          <el-button v-if="!isEdit" :loading="submitting" @click="handleSaveDraft">
+            保存草稿
           </el-button>
-          <el-button @click="$router.push('/articles')">取消</el-button>
+          <el-button type="primary" :loading="submitting" @click="handleSubmit">
+            {{ isEdit ? '保存修改' : '发布文章' }}
+          </el-button>
+          <el-button @click="$router.push(isEdit ? `/articles/${articleId}` : '/articles')">
+            {{ isEdit ? '取消编辑' : '取消' }}
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -62,15 +67,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { articleApi, topicApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
+const route = useRoute()
 const router = useRouter()
 const formRef = ref()
 const submitting = ref(false)
 const topics = ref([])
+
+const articleId = computed(() => route.params.id)
+const isEdit = computed(() => !!articleId.value)
 
 const form = reactive({
   title: '',
@@ -101,30 +110,85 @@ const fetchTopics = async () => {
   }
 }
 
+const fetchArticle = async () => {
+  try {
+    const res = await articleApi.getById(articleId.value)
+    const data = res.data
+    form.title = data.title || ''
+    form.content = data.content || ''
+    form.topicId = data.topic?.id || ''
+    form.tags = data.tags || ''
+  } catch {
+    ElMessage.error('加载文章失败')
+    router.push('/articles')
+  }
+}
+
+const doCreate = async (status) => {
+  submitting.value = true
+  try {
+    const payload = {
+      title: form.title,
+      content: form.content,
+      topicId: form.topicId,
+      tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+      status
+    }
+    const res = await articleApi.create(payload)
+    if (status === 'DRAFT') {
+      ElMessage.success('草稿已保存')
+      router.push('/articles')
+    } else {
+      ElMessage.success('文章发布成功')
+      router.push(`/articles/${res.data.id}`)
+    }
+  } catch {
+    ElMessage.error(status === 'DRAFT' ? '保存草稿失败，请稍后重试' : '发布失败，请稍后重试')
+  } finally {
+    submitting.value = false
+  }
+}
+
 const handleSubmit = async () => {
   if (!formRef.value) return
   await formRef.value.validate(async (valid) => {
     if (!valid) return
-    submitting.value = true
-    try {
-      const res = await articleApi.create({
-        title: form.title,
-        content: form.content,
-        topicId: form.topicId,
-        tags: form.tags
-      })
-      ElMessage.success('文章发布成功')
-      router.push(`/articles/${res.data.id}`)
-    } catch {
-      ElMessage.error('发布失败，请稍后重试')
-    } finally {
-      submitting.value = false
+    if (isEdit.value) {
+      submitting.value = true
+      try {
+        const payload = {
+          title: form.title,
+          content: form.content,
+          topicId: form.topicId,
+          tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+        }
+        await articleApi.update(articleId.value, payload)
+        ElMessage.success('文章修改成功')
+        router.push(`/articles/${articleId.value}`)
+      } catch {
+        ElMessage.error('修改失败，请稍后重试')
+      } finally {
+        submitting.value = false
+      }
+    } else {
+      await doCreate('PUBLISHED')
     }
   })
 }
 
-onMounted(() => {
-  fetchTopics()
+const handleSaveDraft = async () => {
+  if (!formRef.value) return
+  await formRef.value.validate(async (valid) => {
+    if (!valid) return
+    await doCreate('DRAFT')
+  })
+}
+
+onMounted(async () => {
+  await fetchTopics()
+  if (isEdit.value) {
+    await fetchArticle()
+  }
 })
 </script>
 
