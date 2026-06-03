@@ -63,6 +63,12 @@ const routes = [
     meta: { title: '发布文章', requiresAuth: true }
   },
   {
+    path: '/articles/:id/edit',
+    name: 'ArticleEdit',
+    component: () => import('@/views/community/ArticleCreate.vue'),
+    meta: { title: '编辑文章', requiresAuth: true }
+  },
+  {
     path: '/articles/:id',
     name: 'ArticleDetail',
     component: () => import('@/views/community/ArticleDetail.vue'),

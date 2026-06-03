@@ -97,7 +97,13 @@ export const authApi = {
 export const articleApi = {
   getList: (params) => request.get('/articles', { params }),
   getById: (id) => request.get(`/articles/${id}`),
+  getHot: (params) => request.get('/articles/hot', { params }),
+  search: (params) => request.get('/articles/search', { params }),
   create: (data) => request.post('/articles', data),
+  update: (id, data) => request.put(`/articles/${id}`, data),
+  delete: (id) => request.delete(`/articles/${id}`),
+  getMyList: (params) => request.get('/articles/my', { params }),
+  getMyDrafts: (params) => request.get('/articles/my/drafts', { params }),
 }
 
 export const topicApi = {
@@ -105,7 +111,7 @@ export const topicApi = {
 }
 
 export const commentApi = {
-  getByArticle: (params) => request.get(`/articles/${params.articleId}/comments`),
+  getByArticle: (params) => request.get(`/articles/${params.articleId}/comments`, { params }),
   create: (data) => request.post(`/articles/${data.articleId}/comments`, { content: data.content, parentId: data.parentId }),
 }
 
@@ -116,7 +122,18 @@ export const statisticsApi = {
 }
 
 export const followApi = {
-  follow: (data) => request.post('/follows', data),
-  unfollow: (params) => request.delete('/follows', { params }),
-  getStatus: (params) => request.get('/follows/status', { params }),
+  toggle: (userId) => request.post(`/follow/${userId}`),
+  getStatus: (userId) => request.get(`/follow/${userId}/status`),
+}
+
+export const likeApi = {
+  toggle: (articleId) => request.post(`/articles/${articleId}/like`),
+  getStatus: (articleId) => request.get(`/articles/${articleId}/like-status`),
+}
+
+export const notificationApi = {
+  getList: (params) => request.get('/notifications', { params }),
+  getUnreadCount: () => request.get('/notifications/unread-count'),
+  markRead: (id) => request.put(`/notifications/${id}/read`),
+  markAllRead: () => request.put('/notifications/read-all'),
 }

@@ -29,12 +29,14 @@ request.interceptors.response.use(
       return res
     }
     if (res.code !== 200) {
+      console.error('[API Error]', { code: res.code, msg: res.msg })
       ElMessage.error(res.msg || '请求失败')
       return Promise.reject(new Error(res.msg || '请求失败'))
     }
     return res
   },
   error => {
+    console.error('[HTTP Error]', { status: error.response?.status, data: error.response?.data })
     if (error.response) {
       const { status, data } = error.response
       switch (status) {
