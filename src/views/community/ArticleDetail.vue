@@ -14,17 +14,17 @@
 
         <div class="detail-meta">
           <div class="author-info">
-            <el-avatar :size="40" :src="article.authorAvatarUrl">
-              {{ (article.authorNickname || 'U')[0] }}
+            <el-avatar :size="40" :src="article.author?.avatarUrl">
+              {{ (article.author?.nickname || 'U')[0] }}
             </el-avatar>
             <div class="author-text">
-              <span class="author-name">{{ article.authorNickname }}</span>
+              <span class="author-name">{{ article.author?.nickname }}</span>
               <span class="publish-date">{{ formatDate(article.createdAt) }}</span>
             </div>
           </div>
           <div class="meta-actions">
-            <span class="topic-badge">{{ article.topicName }}</span>
-            <span class="meta-stat">
+            <span class="topic-badge">{{ article.topic?.topicName }}</span>
+            <span class="meta-stat like-btn" :class="{ liked: isLiked }" @click="handleLike">
               <el-icon><Star /></el-icon> {{ article.thumbsUpCount || 0 }}
             </span>
             <span class="meta-stat">
@@ -37,6 +37,21 @@
               @click="handleFollow"
             >
               {{ isFollowing ? '已关注' : '关注' }}
+            </el-button>
+            <el-button
+              v-if="isAuthor"
+              size="small"
+              @click="$router.push(`/articles/${article.id}/edit`)"
+            >
+              编辑
+            </el-button>
+            <el-button
+              v-if="isAuthor"
+              size="small"
+              type="danger"
+              @click="handleDelete"
+            >
+              删除
             </el-button>
           </div>
         </div>
@@ -77,12 +92,12 @@
         </div>
 
         <div v-for="comment in comments" :key="comment.id" class="comment-item">
-          <el-avatar :size="36" :src="comment.authorAvatarUrl">
-            {{ (comment.authorNickname || 'U')[0] }}
+          <el-avatar :size="36" :src="comment.author?.avatarUrl">
+            {{ (comment.author?.nickname || 'U')[0] }}
           </el-avatar>
           <div class="comment-body">
             <div class="comment-header">
-              <span class="comment-author">{{ comment.authorNickname }}</span>
+              <span class="comment-author">{{ comment.author?.nickname }}</span>
               <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
             </div>
             <p class="comment-content">{{ comment.content }}</p>
@@ -100,13 +115,14 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import DOMPurify from 'dompurify'
-import { useRoute } from 'vue-router'
-import { articleApi, commentApi, followApi } from '@/api'
+import { useRoute, useRouter } from 'vue-router'
+import { articleApi, commentApi, followApi, likeApi } from '@/api'
 import { useUserStore } from '@/stores/user'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Loading, ArrowLeft, Star, View } from '@element-plus/icons-vue'
 
 const route = useRoute()
+const router = useRouter()
 const userStore = useUserStore()
 
 const article = ref(null)
@@ -115,6 +131,7 @@ const loading = ref(false)
 const commentContent = ref('')
 const commentLoading = ref(false)
 const isFollowing = ref(false)
+const isLiked = ref(false)
 
 const sanitizedContent = computed(() => {
   if (!article.value?.content) return ''
@@ -126,9 +143,14 @@ const tagList = computed(() => {
   return String(article.value.tags).split(',').map(t => t.trim()).filter(Boolean)
 })
 
+const isAuthor = computed(() => {
+  if (!article.value || !userStore.user) return false
+  return article.value.author?.id === userStore.user.id
+})
+
 const canFollow = computed(() => {
   if (!article.value || !userStore.user) return false
-  return article.value.authorId !== userStore.user.id
+  return article.value.author?.id !== userStore.user.id
 })
 
 const fetchArticle = async () => {
@@ -136,8 +158,9 @@ const fetchArticle = async () => {
   try {
     const res = await articleApi.getById(route.params.id)
     article.value = res.data
-    if (article.value?.authorId && userStore.isLoggedIn) {
+    if (userStore.isLoggedIn) {
       fetchFollowStatus()
+      fetchLikeStatus()
     }
   } catch {
     article.value = null
@@ -148,8 +171,9 @@ const fetchArticle = async () => {
 
 const fetchComments = async () => {
   try {
-    const res = await commentApi.getByArticle({ articleId: route.params.id })
-    comments.value = Array.isArray(res.data) ? res.data : []
+    const res = await commentApi.getByArticle({ articleId: route.params.id, page: 0, size: 50 })
+    const data = res.data
+    comments.value = data.content || (Array.isArray(data) ? data : [])
   } catch {
     comments.value = []
   }
@@ -157,24 +181,54 @@ const fetchComments = async () => {
 
 const fetchFollowStatus = async () => {
   try {
-    const res = await followApi.getStatus({ followingId: article.value.authorId })
+    const res = await followApi.getStatus(article.value.author.id)
     isFollowing.value = res.data.following
   } catch {
     isFollowing.value = false
   }
 }
 
+const fetchLikeStatus = async () => {
+  try {
+    const res = await likeApi.getStatus(route.params.id)
+    isLiked.value = res.data.liked
+  } catch {
+    isLiked.value = false
+  }
+}
+
+const handleDelete = async () => {
+  try {
+    await ElMessageBox.confirm('确定要删除该文章吗？删除后不可恢复。', '确认删除', {
+      type: 'warning',
+      confirmButtonText: '确定删除',
+      cancelButtonText: '取消'
+    })
+    await articleApi.delete(route.params.id)
+    ElMessage.success('文章已删除')
+    router.push('/articles')
+  } catch {
+    // cancelled or failed — do nothing
+  }
+}
+
+const handleLike = async () => {
+  try {
+    const res = await likeApi.toggle(route.params.id)
+    isLiked.value = res.data.liked
+    if (article.value) {
+      article.value.thumbsUpCount = res.data.count
+    }
+  } catch {
+    ElMessage.error('操作失败')
+  }
+}
+
 const handleFollow = async () => {
   try {
-    if (isFollowing.value) {
-      await followApi.unfollow({ followingId: article.value.authorId })
-      isFollowing.value = false
-      ElMessage.success('已取消关注')
-    } else {
-      await followApi.follow({ followingId: article.value.authorId })
-      isFollowing.value = true
-      ElMessage.success('关注成功')
-    }
+    const res = await followApi.toggle(article.value.author.id)
+    isFollowing.value = res.data.following
+    ElMessage.success(isFollowing.value ? '关注成功' : '已取消关注')
   } catch {
     ElMessage.error('操作失败')
   }
@@ -299,6 +353,19 @@ onMounted(() => {
   gap: 4px;
   color: #999;
   font-size: 13px;
+}
+
+.like-btn {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.like-btn:hover {
+  color: #e6a23c;
+}
+
+.like-btn.liked {
+  color: #e6a23c;
 }
 
 .article-content {
