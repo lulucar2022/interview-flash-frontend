@@ -71,7 +71,21 @@
       </div>
 
       <div class="comments-section">
-        <h3 class="section-title">评论 ({{ comments.length }})</h3>
+        <div class="section-header">
+          <h3 class="section-title">评论</h3>
+          <div class="comment-sort">
+            <span
+              class="sort-btn"
+              :class="{ active: commentSort === 'oldest' }"
+              @click="switchSort('oldest')"
+            >最早</span>
+            <span
+              class="sort-btn"
+              :class="{ active: commentSort === 'newest' }"
+              @click="switchSort('newest')"
+            >最新</span>
+          </div>
+        </div>
 
         <div class="comment-form">
           <el-input
@@ -91,18 +105,17 @@
           暂无评论，快来发表第一条评论吧
         </div>
 
-        <div v-for="comment in comments" :key="comment.id" class="comment-item">
-          <el-avatar :size="36" :src="comment.author?.avatarUrl">
-            {{ (comment.author?.nickname || 'U')[0] }}
-          </el-avatar>
-          <div class="comment-body">
-            <div class="comment-header">
-              <span class="comment-author">{{ comment.author?.nickname }}</span>
-              <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
-            </div>
-            <p class="comment-content">{{ comment.content }}</p>
-          </div>
-        </div>
+        <CommentItem
+          v-for="comment in comments"
+          :key="comment.id"
+          :comment="comment"
+          :article-id="route.params.id"
+          :depth="0"
+          @reply-submitted="fetchComments"
+          @comment-updated="fetchComments"
+          @comment-deleted="fetchComments"
+          @like-toggled="fetchComments"
+        />
       </div>
     </template>
 
@@ -120,6 +133,7 @@ import { articleApi, commentApi, followApi, likeApi } from '@/api'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Loading, ArrowLeft, Star, View } from '@element-plus/icons-vue'
+import CommentItem from './CommentItem.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -132,6 +146,7 @@ const commentContent = ref('')
 const commentLoading = ref(false)
 const isFollowing = ref(false)
 const isLiked = ref(false)
+const commentSort = ref('oldest')
 
 const sanitizedContent = computed(() => {
   if (!article.value?.content) return ''
@@ -171,12 +186,18 @@ const fetchArticle = async () => {
 
 const fetchComments = async () => {
   try {
-    const res = await commentApi.getByArticle({ articleId: route.params.id, page: 0, size: 50 })
+    const params = { sort: commentSort.value }
+    const res = await commentApi.getByArticle(route.params.id, params)
     const data = res.data
-    comments.value = data.content || (Array.isArray(data) ? data : [])
+    comments.value = Array.isArray(data) ? data : []
   } catch {
     comments.value = []
   }
+}
+
+const switchSort = (sort) => {
+  commentSort.value = sort
+  fetchComments()
 }
 
 const fetchFollowStatus = async () => {
@@ -421,11 +442,45 @@ onMounted(() => {
   box-shadow: 0 0 0 1px var(--color-ring);
 }
 
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
 .section-title {
   font-size: 18px;
   font-weight: 600;
   color: #333;
-  margin: 0 0 20px 0;
+  margin: 0;
+}
+
+.comment-sort {
+  display: flex;
+  gap: 4px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.sort-btn {
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.sort-btn:hover {
+  color: #409EFF;
+}
+
+.sort-btn.active {
+  background: #fff;
+  color: #409EFF;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .comment-form {
@@ -436,46 +491,5 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   margin-top: 12px;
-}
-
-.comment-item {
-  display: flex;
-  gap: 12px;
-  padding: 16px 0;
-  border-bottom: 1px solid #f5f5f5;
-}
-
-.comment-item:last-child {
-  border-bottom: none;
-}
-
-.comment-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.comment-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 6px;
-}
-
-.comment-author {
-  font-size: 14px;
-  font-weight: 500;
-  color: #409EFF;
-}
-
-.comment-date {
-  font-size: 12px;
-  color: #ccc;
-}
-
-.comment-content {
-  font-size: 14px;
-  color: #333;
-  line-height: 1.6;
-  margin: 0;
 }
 </style>

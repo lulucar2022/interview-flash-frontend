@@ -113,8 +113,11 @@ export const topicApi = {
 }
 
 export const commentApi = {
-  getByArticle: (params) => request.get(`/articles/${params.articleId}/comments`, { params }),
+  getByArticle: (articleId, params) => request.get(`/articles/${articleId}/comments`, { params }),
   create: (data) => request.post(`/articles/${data.articleId}/comments`, { content: data.content, parentId: data.parentId }),
+  update: (articleId, commentId, data) => request.put(`/articles/${articleId}/comments/${commentId}`, data),
+  delete: (articleId, commentId) => request.delete(`/articles/${articleId}/comments/${commentId}`),
+  toggleLike: (articleId, commentId) => request.post(`/articles/${articleId}/comments/${commentId}/like`),
 }
 
 export const statisticsApi = {
