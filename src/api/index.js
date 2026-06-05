@@ -129,6 +129,8 @@ export const statisticsApi = {
 export const followApi = {
   toggle: (userId) => request.post(`/follow/${userId}`),
   getStatus: (userId) => request.get(`/follow/${userId}/status`),
+  getFollowers: (userId) => request.get(`/follow/${userId}/followers`),
+  getFollowing: (userId) => request.get(`/follow/${userId}/following`),
 }
 
 export const likeApi = {

@@ -99,15 +99,48 @@
               <span class="stat-label">错题数</span>
               <span class="stat-value danger">{{ statistics.wrongCount || 0 }}</span>
             </div>
-            <div class="stat-item">
-              <span class="stat-label">掌握率</span>
-              <span class="stat-value primary">{{ statistics.progressRate || '0.00' }}%</span>
-            </div>
+          <div class="stat-item">
+            <span class="stat-label">掌握率</span>
+            <span class="stat-value primary">{{ statistics.progressRate || '0.00' }}%</span>
           </div>
         </div>
-        
-        <div class="profile-card" v-tilt>
-          <h3>我的收藏</h3>
+      </div>
+      
+      <div class="profile-card" v-tilt>
+        <h3>社交</h3>
+        <div class="social-tabs">
+          <span
+            class="social-tab"
+            :class="{ active: socialTab === 'followers' }"
+            @click="switchSocialTab('followers')"
+          >粉丝 {{ followerCount }}</span>
+          <span
+            class="social-tab"
+            :class="{ active: socialTab === 'following' }"
+            @click="switchSocialTab('following')"
+          >关注 {{ followingCount }}</span>
+        </div>
+        <div class="social-list">
+          <div
+            v-for="item in socialList"
+            :key="item.id"
+            class="social-item"
+            @click="$router.push('/author/' + item.id)"
+          >
+            <el-avatar :size="32" :src="item.avatarUrl">
+              {{ (item.nickname || 'U')[0] }}
+            </el-avatar>
+            <div class="social-item-text">
+              <span class="social-item-name">{{ item.nickname }}</span>
+              <span v-if="item.mutual" class="mutual-tag">互相关注</span>
+            </div>
+          </div>
+          <el-empty v-if="socialList.length === 0" description="暂无数据" :image-size="50" />
+        </div>
+      </div>
+      
+      <div class="profile-card" v-tilt>
+        <h3>我的收藏</h3>
           <div class="favorites-list">
             <div
               v-for="item in favorites"
@@ -139,7 +172,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { progressApi, authApi, articleApi } from '@/api'
+import { progressApi, authApi, articleApi, followApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -186,6 +219,10 @@ const passwordRules = {
 const statistics = ref({})
 const favorites = ref([])
 const myArticles = ref([])
+const socialTab = ref('followers')
+const socialList = ref([])
+const followerCount = ref(0)
+const followingCount = ref(0)
 
 const loadStatistics = async () => {
   try {
@@ -212,6 +249,33 @@ const loadMyArticles = async () => {
   } catch (error) {
     console.error('加载文章失败', error)
   }
+}
+
+const loadSocialData = async () => {
+  const userId = userStore.user?.id
+  if (!userId) return
+  try {
+    const [followersRes, followingRes] = await Promise.all([
+      followApi.getFollowers(userId),
+      followApi.getFollowing(userId)
+    ])
+    const followers = Array.isArray(followersRes.data) ? followersRes.data : []
+    const following = Array.isArray(followingRes.data) ? followingRes.data : []
+    followerCount.value = followers.length
+    followingCount.value = following.length
+    if (socialTab.value === 'followers') {
+      socialList.value = followers
+    } else {
+      socialList.value = following
+    }
+  } catch {
+    socialList.value = []
+  }
+}
+
+const switchSocialTab = (tab) => {
+  socialTab.value = tab
+  loadSocialData()
 }
 
 const formatDate = (dateStr) => {
@@ -279,6 +343,7 @@ onMounted(() => {
   loadStatistics()
   loadFavorites()
   loadMyArticles()
+  loadSocialData()
 })
 </script>
 
@@ -407,6 +472,80 @@ onMounted(() => {
 
 .danger-zone {
   border: 1px solid #fde2e2;
+}
+
+.social-tabs {
+  display: flex;
+  gap: 4px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  padding: 2px;
+  margin-bottom: 16px;
+}
+
+.social-tab {
+  flex: 1;
+  text-align: center;
+  padding: 6px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.social-tab:hover {
+  color: #409EFF;
+}
+
+.social-tab.active {
+  background: #fff;
+  color: #409EFF;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.social-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.social-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #f5f7fa;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.social-item:hover {
+  background: #ecf5ff;
+}
+
+.social-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.social-item-name {
+  font-size: 14px;
+  color: #303133;
+  font-weight: 500;
+}
+
+.mutual-tag {
+  font-size: 11px;
+  color: #409EFF;
+  background: #ecf5ff;
+  padding: 1px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  width: fit-content;
 }
 
 .my-articles-list {
