@@ -49,6 +49,13 @@
               <el-icon><View /></el-icon> {{ article.viewCount || 0 }}
             </span>
             <el-button
+              :type="isBookmarked ? 'warning' : 'default'"
+              size="small"
+              @click="handleBookmark"
+            >
+              {{ isBookmarked ? '已收藏' : '收藏' }}
+            </el-button>
+            <el-button
               v-if="canFollow"
               :type="isFollowing ? 'default' : 'primary'"
               size="small"
@@ -150,7 +157,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
-import { articleApi, commentApi, followApi, likeApi } from '@/api'
+import { articleApi, commentApi, followApi, likeApi, bookmarkApi } from '@/api'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowLeft, Star, View } from '@element-plus/icons-vue'
@@ -167,6 +174,7 @@ const commentContent = ref('')
 const commentLoading = ref(false)
 const isFollowing = ref(false)
 const isLiked = ref(false)
+const isBookmarked = ref(false)
 const commentSort = ref('oldest')
 
 const tagList = computed(() => {
@@ -192,6 +200,7 @@ const fetchArticle = async () => {
     if (userStore.isLoggedIn) {
       fetchFollowStatus()
       fetchLikeStatus()
+      fetchBookmarkStatus()
     }
   } catch {
     article.value = null
@@ -231,6 +240,25 @@ const fetchLikeStatus = async () => {
     isLiked.value = res.data.liked
   } catch {
     isLiked.value = false
+  }
+}
+
+const fetchBookmarkStatus = async () => {
+  try {
+    const res = await bookmarkApi.getStatus(route.params.id)
+    isBookmarked.value = res.data.bookmarked
+  } catch {
+    isBookmarked.value = false
+  }
+}
+
+const handleBookmark = async () => {
+  try {
+    const res = await bookmarkApi.toggle(route.params.id)
+    isBookmarked.value = res.data.bookmarked
+    ElMessage.success(isBookmarked.value ? '已收藏' : '已取消收藏')
+  } catch {
+    ElMessage.error('操作失败')
   }
 }
 

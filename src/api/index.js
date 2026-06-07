@@ -138,6 +138,12 @@ export const likeApi = {
   getStatus: (articleId) => request.get(`/articles/${articleId}/like-status`),
 }
 
+export const bookmarkApi = {
+  toggle: (articleId) => request.post(`/bookmarks/${articleId}`),
+  getList: (params) => request.get('/bookmarks', { params }),
+  getStatus: (articleId) => request.get(`/bookmarks/${articleId}/status`),
+}
+
 export const notificationApi = {
   getList: (params) => request.get('/notifications', { params }),
   getUnreadCount: () => request.get('/notifications/unread-count'),

@@ -141,6 +141,19 @@
       
       <div class="profile-card" v-tilt>
         <h3>我的收藏</h3>
+        <div class="favorites-tabs">
+          <span
+            class="fav-tab"
+            :class="{ active: favoriteTab === 'questions' }"
+            @click="switchFavoriteTab('questions')"
+          >题目</span>
+          <span
+            class="fav-tab"
+            :class="{ active: favoriteTab === 'articles' }"
+            @click="switchFavoriteTab('articles')"
+          >文章</span>
+        </div>
+        <div v-if="favoriteTab === 'questions'">
           <div class="favorites-list">
             <div
               v-for="item in favorites"
@@ -156,6 +169,21 @@
             <el-empty v-if="favorites.length === 0" description="暂无收藏" :image-size="60" />
           </div>
         </div>
+        <div v-else>
+          <div class="favorites-list">
+            <div
+              v-for="item in articleBookmarks"
+              :key="item.id"
+              class="favorite-item"
+              @click="$router.push(`/articles/${item.article?.id}`)"
+            >
+              <span class="favorite-title">{{ item.article?.title }}</span>
+              <span class="favorite-date">{{ formatDate(item.createdAt) }}</span>
+            </div>
+            <el-empty v-if="articleBookmarks.length === 0" description="暂无文章收藏" :image-size="60" />
+          </div>
+        </div>
+      </div>
         
         <div class="profile-card danger-zone" v-tilt>
           <h3>危险区域</h3>
@@ -172,7 +200,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { progressApi, authApi, articleApi, followApi } from '@/api'
+import { progressApi, authApi, articleApi, followApi, bookmarkApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -223,6 +251,8 @@ const socialTab = ref('followers')
 const socialList = ref([])
 const followerCount = ref(0)
 const followingCount = ref(0)
+const favoriteTab = ref('questions')
+const articleBookmarks = ref([])
 
 const loadStatistics = async () => {
   try {
@@ -276,6 +306,22 @@ const loadSocialData = async () => {
 const switchSocialTab = (tab) => {
   socialTab.value = tab
   loadSocialData()
+}
+
+const loadArticleBookmarks = async () => {
+  try {
+    const res = await bookmarkApi.getList({ page: 0, size: 100 })
+    articleBookmarks.value = res.data?.content || []
+  } catch {
+    articleBookmarks.value = []
+  }
+}
+
+const switchFavoriteTab = (tab) => {
+  favoriteTab.value = tab
+  if (tab === 'articles' && articleBookmarks.value.length === 0) {
+    loadArticleBookmarks()
+  }
 }
 
 const formatDate = (dateStr) => {
@@ -344,6 +390,7 @@ onMounted(() => {
   loadFavorites()
   loadMyArticles()
   loadSocialData()
+  loadArticleBookmarks()
 })
 </script>
 
@@ -470,8 +517,45 @@ onMounted(() => {
   flex: 1;
 }
 
+.favorite-date {
+  color: #909399;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
 .danger-zone {
   border: 1px solid #fde2e2;
+}
+
+.favorites-tabs {
+  display: flex;
+  gap: 4px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  padding: 2px;
+  margin-bottom: 16px;
+}
+
+.fav-tab {
+  flex: 1;
+  text-align: center;
+  padding: 6px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.fav-tab:hover {
+  color: #409EFF;
+}
+
+.fav-tab.active {
+  background: #fff;
+  color: #409EFF;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .social-tabs {
