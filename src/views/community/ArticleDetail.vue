@@ -55,6 +55,9 @@
             >
               {{ isBookmarked ? '已收藏' : '收藏' }}
             </el-button>
+            <el-button size="small" @click="handleShare">
+              分享
+            </el-button>
             <el-button
               v-if="canFollow"
               :type="isFollowing ? 'default' : 'primary'"
@@ -260,6 +263,14 @@ const handleBookmark = async () => {
   } catch {
     ElMessage.error('操作失败')
   }
+}
+
+const handleShare = () => {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    ElMessage.success('链接已复制到剪贴板')
+  }).catch(() => {
+    ElMessage.error('复制失败，请手动复制地址栏链接')
+  })
 }
 
 const handleDelete = async () => {
