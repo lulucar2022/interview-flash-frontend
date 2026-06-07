@@ -28,6 +28,7 @@
       </div>
       
       <div class="user-area">
+        <NotificationBell />
         <el-dropdown @command="handleCommand">
           <span class="user-info">
             <span class="avatar">{{ (userStore.user?.nickname || 'U')[0] }}</span>
@@ -53,6 +54,7 @@
 <script setup>
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
+import NotificationBell from '@/components/NotificationBell.vue'
 
 const userStore = useUserStore()
 const router = useRouter()

@@ -75,6 +75,12 @@ const routes = [
     meta: { title: '文章详情', requiresAuth: true }
   },
   {
+    path: '/notifications',
+    name: 'NotificationList',
+    component: () => import('@/views/NotificationList.vue'),
+    meta: { title: '消息通知', requiresAuth: true }
+  },
+  {
     path: '/author/:id',
     name: 'AuthorProfile',
     component: () => import('@/views/community/AuthorProfile.vue'),
