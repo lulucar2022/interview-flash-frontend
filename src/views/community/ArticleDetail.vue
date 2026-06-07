@@ -4,9 +4,27 @@
       <el-icon><ArrowLeft /></el-icon> 返回文章列表
     </div>
 
-    <div v-if="loading" class="text-center" style="padding: 60px">
-      <el-icon class="is-loading" :size="32"><Loading /></el-icon>
-    </div>
+    <template v-if="loading">
+      <div class="article-detail">
+        <div class="skeleton-title">
+          <el-skeleton :rows="2" animated />
+        </div>
+        <div class="skeleton-author">
+          <el-skeleton-item variant="circle" style="width: 40px; height: 40px" />
+          <div class="skeleton-author-text">
+            <el-skeleton-item variant="text" style="width: 120px" />
+            <el-skeleton-item variant="text" style="width: 160px" />
+          </div>
+        </div>
+        <div class="skeleton-content">
+          <el-skeleton :rows="6" animated />
+        </div>
+        <div class="skeleton-comments">
+          <el-skeleton-item variant="text" style="width: 100px; height: 24px" />
+          <el-skeleton :rows="3" animated style="margin-top: 12px" />
+        </div>
+      </div>
+    </template>
 
     <template v-else-if="article">
       <div class="article-detail">
@@ -135,7 +153,7 @@ import 'md-editor-v3/lib/preview.css'
 import { articleApi, commentApi, followApi, likeApi } from '@/api'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Loading, ArrowLeft, Star, View } from '@element-plus/icons-vue'
+import { ArrowLeft, Star, View } from '@element-plus/icons-vue'
 import CommentItem from './CommentItem.vue'
 
 const route = useRoute()
@@ -457,5 +475,30 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   margin-top: 12px;
+}
+
+.skeleton-title {
+  margin-bottom: 24px;
+}
+
+.skeleton-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.skeleton-author-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-content {
+  margin-bottom: 32px;
+}
+
+.skeleton-comments {
+  margin-top: 24px;
 }
 </style>

@@ -1,8 +1,27 @@
 <template>
   <div class="page-container">
-    <div v-if="loading" class="text-center" style="padding: 60px">
-      <el-icon class="is-loading" :size="32"><Loading /></el-icon>
-    </div>
+    <template v-if="loading">
+      <div class="profile-header skeleton-profile-header">
+        <div class="header-left">
+          <el-skeleton-item variant="circle" style="width: 72px; height: 72px" />
+          <div class="header-text">
+            <el-skeleton-item variant="text" style="width: 140px; height: 24px" />
+            <el-skeleton-item variant="text" style="width: 200px; height: 16px" />
+          </div>
+        </div>
+      </div>
+      <div class="stats-row skeleton-stats">
+        <div v-for="n in 4" :key="n" class="stat-card">
+          <el-skeleton-item variant="text" style="width: 24px; height: 24px" />
+          <el-skeleton-item variant="text" style="width: 40px; height: 14px" />
+        </div>
+      </div>
+      <div class="skeleton-articles">
+        <div v-for="n in 3" :key="n" class="article-card" style="padding: 20px">
+          <el-skeleton :rows="2" animated />
+        </div>
+      </div>
+    </template>
 
     <template v-else-if="profile">
       <div class="profile-header" v-tilt>
@@ -110,7 +129,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { userApi, followApi } from '@/api'
 import { ElMessage } from 'element-plus'
-import { Loading, View, Star, ChatDotRound } from '@element-plus/icons-vue'
+import { View, Star, ChatDotRound } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -332,5 +351,28 @@ onMounted(async () => {
   display: flex;
   justify-content: center;
   padding: 16px 0 0;
+}
+
+.skeleton-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.skeleton-stats {
+  margin: 24px 0;
+}
+
+.skeleton-stats .stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.skeleton-articles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 </style>

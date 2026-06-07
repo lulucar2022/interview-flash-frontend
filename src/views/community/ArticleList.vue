@@ -66,9 +66,23 @@
           </div>
         </div>
 
-        <div v-if="loading" class="text-center" style="padding: 40px">
-          <el-icon class="is-loading" :size="32"><Loading /></el-icon>
-        </div>
+        <template v-if="loading">
+          <div class="skeleton-list">
+            <div v-for="n in 4" :key="n" class="article-card card">
+              <div class="article-main">
+                <el-skeleton :rows="1" animated />
+                <div class="skeleton-meta">
+                  <el-skeleton-item variant="text" style="width: 80px" />
+                  <el-skeleton-item variant="text" style="width: 60px" />
+                  <el-skeleton-item variant="text" style="width: 40px" />
+                  <el-skeleton-item variant="text" style="width: 40px" />
+                  <el-skeleton-item variant="text" style="width: 40px" />
+                  <el-skeleton-item variant="text" style="width: 90px" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
 
         <template v-else>
           <div v-if="articles.length === 0" class="text-center text-muted" style="padding: 60px">
@@ -126,7 +140,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { articleApi, topicApi } from '@/api'
-import { Loading, Star, ChatDotRound, View, Search } from '@element-plus/icons-vue'
+import { Star, ChatDotRound, View, Search } from '@element-plus/icons-vue'
 
 import { useUserStore } from '@/stores/user'
 
@@ -434,6 +448,19 @@ onMounted(() => {
 
 .date {
   margin-left: auto;
+}
+
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .pagination-wrap {
