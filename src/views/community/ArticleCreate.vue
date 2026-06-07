@@ -35,11 +35,12 @@
         </el-form-item>
 
         <el-form-item label="内容" prop="content">
-          <el-input
+          <MdEditor
             v-model="form.content"
-            type="textarea"
-            :rows="15"
-            placeholder="请输入文章内容（支持HTML）"
+            :toolbars="toolbars"
+            language="zh-CN"
+            placeholder="请输入文章内容（支持 Markdown）"
+            @on-upload-img="handleUploadImg"
           />
         </el-form-item>
 
@@ -71,6 +72,9 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { articleApi, topicApi } from '@/api'
 import { ElMessage } from 'element-plus'
+import { MdEditor } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+import request from '@/utils/request'
 
 const route = useRoute()
 const router = useRouter()
@@ -88,6 +92,18 @@ const form = reactive({
   tags: ''
 })
 
+const toolbars = [
+  'bold', 'underline', 'italic', 'strikeThrough', 'sub', 'sup',
+  '-',
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  '-',
+  'quote', 'unorderedList', 'orderedList', 'task',
+  '-',
+  'codeRow', 'code', 'link', 'image', 'table',
+  '=',
+  'prettier', 'pageFullscreen', 'fullscreen', 'preview', 'previewOnly'
+]
+
 const rules = {
   title: [
     { required: true, message: '请输入文章标题', trigger: 'blur' },
@@ -99,6 +115,19 @@ const rules = {
   content: [
     { required: true, message: '请输入文章内容', trigger: 'blur' }
   ]
+}
+
+const handleUploadImg = async (files, callback) => {
+  const formData = new FormData()
+  formData.append('file', files[0])
+  try {
+    const res = await request.post('/api/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    callback([res.data.url])
+  } catch {
+    ElMessage.error('图片上传失败')
+  }
 }
 
 const fetchTopics = async () => {

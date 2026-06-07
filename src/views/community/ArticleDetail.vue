@@ -56,7 +56,9 @@
           </div>
         </div>
 
-        <div class="article-content" v-html="sanitizedContent"></div>
+        <div class="article-content">
+          <MdPreview :modelValue="article.content" language="zh-CN" />
+        </div>
 
         <div class="tags" v-if="article.tags">
           <el-tag
@@ -127,8 +129,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import DOMPurify from 'dompurify'
 import { useRoute, useRouter } from 'vue-router'
+import { MdPreview } from 'md-editor-v3'
+import 'md-editor-v3/lib/preview.css'
 import { articleApi, commentApi, followApi, likeApi } from '@/api'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -147,11 +150,6 @@ const commentLoading = ref(false)
 const isFollowing = ref(false)
 const isLiked = ref(false)
 const commentSort = ref('oldest')
-
-const sanitizedContent = computed(() => {
-  if (!article.value?.content) return ''
-  return DOMPurify.sanitize(article.value.content)
-})
 
 const tagList = computed(() => {
   if (!article.value?.tags) return []
@@ -396,39 +394,7 @@ onMounted(() => {
 }
 
 .article-content {
-  font-size: 15px;
-  line-height: 1.8;
-  color: #333;
   margin-bottom: 20px;
-}
-
-.article-content :deep(h1),
-.article-content :deep(h2),
-.article-content :deep(h3) {
-  margin: 24px 0 12px;
-}
-
-.article-content :deep(p) {
-  margin: 0 0 16px;
-}
-
-.article-content :deep(img) {
-  max-width: 100%;
-  border-radius: 8px;
-}
-
-.article-content :deep(pre) {
-  background: #f6f8fa;
-  border-radius: 6px;
-  padding: 16px;
-  overflow-x: auto;
-}
-
-.article-content :deep(code) {
-  background: #f6f8fa;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 13px;
 }
 
 .tags {
