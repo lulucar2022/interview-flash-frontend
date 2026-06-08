@@ -124,6 +124,9 @@ export const statisticsApi = {
   getDaily: (days) => request.get('/statistics/daily', { params: { days } }),
   getStreak: () => request.get('/statistics/streak'),
   getCategory: () => request.get('/statistics/category'),
+  getArticleViewsTrend: (days) => request.get('/statistics/article-views', { params: { days } }),
+  getArticleViewTotal: () => request.get('/statistics/article-views/total'),
+  getFollowerTrend: (days) => request.get('/statistics/follower-trend', { params: { days } }),
 }
 
 export const followApi = {

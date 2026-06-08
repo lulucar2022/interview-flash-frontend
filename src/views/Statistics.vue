@@ -70,6 +70,41 @@
         </div>
       </el-col>
     </el-row>
+
+    <!-- 创作数据 -->
+    <div class="section" v-if="showCreationStats">
+      <div class="section-header"><h2>📊 创作数据</h2></div>
+      <el-row :gutter="20" class="overview-row">
+        <el-col :span="12">
+          <div class="stat-card" v-tilt>
+            <div class="stat-icon" style="background: #409EFF;">👁️</div>
+            <div class="stat-info">
+              <div class="stat-value">{{ totalViews }}</div>
+              <div class="stat-label">文章总浏览量</div>
+            </div>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="stat-card" v-tilt>
+            <div class="stat-icon" style="background: #67C23A;">👥</div>
+            <div class="stat-info">
+              <div class="stat-value">{{ currentFollowers }}</div>
+              <div class="stat-label">累计粉丝</div>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <div class="section-header"><h3>📈 阅读趋势</h3></div>
+          <v-chart :option="articleViewsOption" autoresize style="height: 260px" />
+        </el-col>
+        <el-col :span="12">
+          <div class="section-header"><h3>📈 粉丝趋势</h3></div>
+          <v-chart :option="followerTrendOption" autoresize style="height: 260px" />
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
@@ -96,6 +131,10 @@ const userStore = useUserStore()
 const dailyData = ref([])
 const categoryData = ref([])
 const streak = ref({ currentStreak: 0, maxStreak: 0 })
+const articleViewTrend = ref([])
+const followerTrend = ref([])
+const totalViews = ref(0)
+const showCreationStats = ref(false)
 
 const totalAnswered = computed(() => dailyData.value.reduce((s, d) => s + d.count, 0))
 const totalCorrect = computed(() => dailyData.value.reduce((s, d) => s + d.correct, 0))
@@ -106,6 +145,11 @@ const accuracyRate = computed(() => {
 const masteredCategories = computed(() =>
   categoryData.value.filter(c => c.total > 0 && c.mastered / c.total >= 0.8).length
 )
+
+const currentFollowers = computed(() => {
+  if (followerTrend.value.length === 0) return 0
+  return followerTrend.value[followerTrend.value.length - 1].count
+})
 
 // ---- 折线图 ----
 const trendOption = computed(() => {
@@ -161,6 +205,58 @@ const categoryOption = computed(() => {
   }
 })
 
+// ---- 阅读趋势 ----
+const articleViewsOption = computed(() => {
+  const data = articleViewTrend.value
+  if (data.length === 0) {
+    return { title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { color: '#999', fontSize: 14 } } }
+  }
+  return {
+    tooltip: { trigger: 'axis' },
+    grid: { left: 50, right: 20, top: 10, bottom: 30 },
+    xAxis: {
+      type: 'category',
+      data: data.map(d => d.date.slice(5)),
+      axisLabel: { fontSize: 10, rotate: 45 }
+    },
+    yAxis: { type: 'value', minInterval: 1 },
+    series: [{
+      name: '浏览量', type: 'line',
+      data: data.map(d => d.count),
+      smooth: true,
+      lineStyle: { color: '#409EFF', width: 2 },
+      areaStyle: { color: 'rgba(64,158,255,0.1)' },
+      itemStyle: { color: '#409EFF' }
+    }]
+  }
+})
+
+// ---- 粉丝趋势 ----
+const followerTrendOption = computed(() => {
+  const data = followerTrend.value
+  if (data.length === 0) {
+    return { title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { color: '#999', fontSize: 14 } } }
+  }
+  return {
+    tooltip: { trigger: 'axis' },
+    grid: { left: 50, right: 20, top: 10, bottom: 30 },
+    xAxis: {
+      type: 'category',
+      data: data.map(d => d.date.slice(5)),
+      axisLabel: { fontSize: 10, rotate: 45 }
+    },
+    yAxis: { type: 'value', minInterval: 1 },
+    series: [{
+      name: '粉丝数', type: 'line',
+      data: data.map(d => d.count),
+      smooth: true,
+      lineStyle: { color: '#67C23A', width: 2 },
+      areaStyle: { color: 'rgba(103,194,58,0.1)' },
+      itemStyle: { color: '#67C23A' }
+    }]
+  }
+})
+
 onMounted(async () => {
   try {
     const userId = userStore.user?.id
@@ -174,6 +270,16 @@ onMounted(async () => {
     dailyData.value = dailyRes.data || []
     streak.value = streakRes.data || {}
     categoryData.value = categoryRes.data || []
+
+    const [viewsRes, totalViewsRes, followerRes] = await Promise.all([
+      statisticsApi.getArticleViewsTrend(30).catch(() => ({ data: [] })),
+      statisticsApi.getArticleViewTotal().catch(() => ({ data: 0 })),
+      statisticsApi.getFollowerTrend(30).catch(() => ({ data: [] }))
+    ])
+    articleViewTrend.value = viewsRes.data || []
+    totalViews.value = totalViewsRes.data || 0
+    followerTrend.value = followerRes.data || []
+    showCreationStats.value = true
   } catch (e) {
     console.error('加载统计数据失败', e)
   }
