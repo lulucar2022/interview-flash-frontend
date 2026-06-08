@@ -51,13 +51,16 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import { notificationApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
+const userStore = useUserStore()
 const list = ref([])
 const unreadCount = ref(0)
-let pollTimer = null
+let eventSource = null
+let reconnectTimer = null
 
 const typeIcon = (type) => {
   if (type === 'like') return '👍'
@@ -100,7 +103,7 @@ const handleClick = async (item) => {
   if (!item.isRead) {
     try {
       await notificationApi.markRead(item.id)
-      fetchUnreadCount()
+      unreadCount.value = Math.max(0, unreadCount.value - 1)
     } catch {
       // ignore
     }
@@ -123,13 +126,49 @@ const handleMarkAllRead = async () => {
   }
 }
 
+const connectSSE = () => {
+  const token = userStore.token
+  if (!token) return
+  eventSource = new EventSource(`/api/notifications/subscribe?token=${token}`)
+
+  eventSource.addEventListener('notification', (e) => {
+    try {
+      const data = JSON.parse(e.data)
+      unreadCount.value++
+    } catch {
+      // ignore
+    }
+  })
+
+  eventSource.addEventListener('heartbeat', () => {})
+
+  eventSource.onerror = () => {
+    if (eventSource) {
+      eventSource.close()
+      eventSource = null
+    }
+    reconnectTimer = setTimeout(connectSSE, 5000)
+  }
+}
+
+const disconnectSSE = () => {
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer)
+    reconnectTimer = null
+  }
+  if (eventSource) {
+    eventSource.close()
+    eventSource = null
+  }
+}
+
 onMounted(() => {
   fetchUnreadCount()
-  pollTimer = setInterval(fetchUnreadCount, 60000)
+  connectSSE()
 })
 
 onUnmounted(() => {
-  if (pollTimer) clearInterval(pollTimer)
+  disconnectSSE()
 })
 </script>
 
