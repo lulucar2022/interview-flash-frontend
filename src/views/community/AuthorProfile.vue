@@ -44,6 +44,14 @@
           >
             {{ profile.following ? '已关注' : '关注' }}
           </el-button>
+          <el-button
+            v-if="profile.id !== currentUserId"
+            :type="isBlocked ? 'danger' : 'default'"
+            size="small"
+            @click="handleToggleBlock"
+          >
+            {{ isBlocked ? '已拉黑' : '拉黑' }}
+          </el-button>
         </div>
       </div>
 
@@ -127,7 +135,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { userApi, followApi } from '@/api'
+import { userApi, followApi, blockApi } from '@/api'
 import { ElMessage } from 'element-plus'
 import { View, Star, ChatDotRound } from '@element-plus/icons-vue'
 
@@ -140,6 +148,7 @@ const articles = ref([])
 const loading = ref(true)
 const error = ref('')
 const followLoading = ref(false)
+const isBlocked = ref(false)
 const currentPage = ref(1)
 const pageSize = 10
 const total = ref(0)
@@ -153,6 +162,10 @@ const fetchProfile = async () => {
   try {
     const res = await userApi.getAuthorProfile(route.params.id)
     profile.value = res.data
+    if (userStore.isLoggedIn && profile.value.id !== currentUserId.value) {
+      const blockRes = await blockApi.getStatus(profile.value.id)
+      isBlocked.value = blockRes.data.blocked
+    }
   } catch {
     error.value = '用户不存在'
   } finally {
@@ -192,6 +205,20 @@ const handleToggleFollow = async () => {
     ElMessage.error('操作失败')
   } finally {
     followLoading.value = false
+  }
+}
+
+const handleToggleBlock = async () => {
+  if (!userStore.isLoggedIn) {
+    ElMessage.warning('请先登录')
+    return
+  }
+  try {
+    const res = await blockApi.toggle(profile.value.id)
+    isBlocked.value = res.data.blocked
+    ElMessage.success(isBlocked.value ? '已拉黑' : '已取消拉黑')
+  } catch {
+    ElMessage.error('操作失败')
   }
 }
 

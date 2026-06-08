@@ -144,6 +144,12 @@ export const bookmarkApi = {
   getStatus: (articleId) => request.get(`/bookmarks/${articleId}/status`),
 }
 
+export const blockApi = {
+  toggle: (userId) => request.post(`/block/${userId}`),
+  getStatus: (userId) => request.get(`/block/${userId}/status`),
+  getList: () => request.get('/block/list'),
+}
+
 export const notificationApi = {
   getList: (params) => request.get('/notifications', { params }),
   getUnreadCount: () => request.get('/notifications/unread-count'),

@@ -185,6 +185,26 @@
         </div>
       </div>
         
+        <div class="profile-card" v-tilt>
+        <h3>黑名单</h3>
+        <div class="block-list">
+          <div
+            v-for="item in blockedUsers"
+            :key="item.id"
+            class="block-item"
+          >
+            <el-avatar :size="28" :src="item.avatarUrl">
+              {{ (item.nickname || 'U')[0] }}
+            </el-avatar>
+            <span class="block-item-name">{{ item.nickname }}</span>
+            <el-button type="primary" size="small" text @click="handleUnblock(item)">
+              解除
+            </el-button>
+          </div>
+          <el-empty v-if="blockedUsers.length === 0" description="暂无拉黑" :image-size="50" />
+        </div>
+      </div>
+        
         <div class="profile-card danger-zone" v-tilt>
           <h3>危险区域</h3>
           <el-button type="danger" plain @click="handleLogout">
@@ -200,7 +220,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { progressApi, authApi, articleApi, followApi, bookmarkApi } from '@/api'
+import { progressApi, authApi, articleApi, followApi, bookmarkApi, blockApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -253,6 +273,7 @@ const followerCount = ref(0)
 const followingCount = ref(0)
 const favoriteTab = ref('questions')
 const articleBookmarks = ref([])
+const blockedUsers = ref([])
 
 const loadStatistics = async () => {
   try {
@@ -376,6 +397,25 @@ const removeFavorite = async (item) => {
   }
 }
 
+const loadBlockedUsers = async () => {
+  try {
+    const res = await blockApi.getList()
+    blockedUsers.value = Array.isArray(res.data) ? res.data : []
+  } catch {
+    blockedUsers.value = []
+  }
+}
+
+const handleUnblock = async (item) => {
+  try {
+    await blockApi.toggle(item.userId)
+    blockedUsers.value = blockedUsers.value.filter((b) => b.id !== item.id)
+    ElMessage.success('已解除拉黑')
+  } catch {
+    ElMessage.error('操作失败')
+  }
+}
+
 const handleLogout = () => {
   userStore.logout()
   router.push('/login')
@@ -391,6 +431,7 @@ onMounted(() => {
   loadMyArticles()
   loadSocialData()
   loadArticleBookmarks()
+  loadBlockedUsers()
 })
 </script>
 
@@ -525,6 +566,27 @@ onMounted(() => {
 
 .danger-zone {
   border: 1px solid #fde2e2;
+}
+
+.block-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.block-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #f5f7fa;
+  border-radius: 8px;
+}
+
+.block-item-name {
+  flex: 1;
+  font-size: 14px;
+  color: #303133;
 }
 
 .favorites-tabs {
