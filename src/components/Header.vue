@@ -25,6 +25,9 @@
         <router-link to="/articles" class="nav-item" :class="{ active: $route.path.startsWith('/articles') }">
           社区
         </router-link>
+        <router-link to="/series" class="nav-item" :class="{ active: $route.path.startsWith('/series') }">
+          系列
+        </router-link>
       </div>
       
       <div class="user-area">
