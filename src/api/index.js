@@ -153,6 +153,15 @@ export const blockApi = {
   getList: () => request.get('/block/list'),
 }
 
+export const seriesApi = {
+  getList: (params) => request.get('/series', { params }),
+  getById: (id) => request.get(`/series/${id}`),
+  create: (data) => request.post('/series', data),
+  update: (id, data) => request.put(`/series/${id}`, data),
+  delete: (id) => request.delete(`/series/${id}`),
+  assignArticle: (articleId, data) => request.put(`/series/articles/${articleId}`, data),
+}
+
 export const notificationApi = {
   getList: (params) => request.get('/notifications', { params }),
   getUnreadCount: () => request.get('/notifications/unread-count'),

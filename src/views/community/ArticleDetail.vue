@@ -42,6 +42,9 @@
           </router-link>
           <div class="meta-actions">
             <span class="topic-badge">{{ article.topic?.topicName }}</span>
+            <router-link v-if="article.series" :to="'/series/' + article.series.id" class="series-badge">
+              📚 {{ article.series.title }}
+            </router-link>
             <span class="meta-stat like-btn" :class="{ liked: isLiked }" @click="handleLike">
               <el-icon><Star /></el-icon> {{ article.thumbsUpCount || 0 }}
             </span>
@@ -427,6 +430,21 @@ onMounted(() => {
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 12px;
+}
+
+.series-badge {
+  background: #f0f9eb;
+  color: #67C23A;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.series-badge:hover {
+  opacity: 0.8;
 }
 
 .meta-stat {

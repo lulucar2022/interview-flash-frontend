@@ -81,6 +81,18 @@ const routes = [
     meta: { title: '消息通知', requiresAuth: true }
   },
   {
+    path: '/series',
+    name: 'SeriesList',
+    component: () => import('@/views/community/SeriesList.vue'),
+    meta: { title: '文章系列', requiresAuth: true }
+  },
+  {
+    path: '/series/:id',
+    name: 'SeriesDetail',
+    component: () => import('@/views/community/SeriesDetail.vue'),
+    meta: { title: '系列详情', requiresAuth: true }
+  },
+  {
     path: '/author/:id',
     name: 'AuthorProfile',
     component: () => import('@/views/community/AuthorProfile.vue'),

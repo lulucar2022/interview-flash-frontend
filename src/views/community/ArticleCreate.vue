@@ -34,6 +34,15 @@
           </el-select>
         </el-form-item>
 
+        <el-form-item label="所属系列">
+          <div class="series-select-row">
+            <el-select v-model="form.seriesId" placeholder="选择系列（可选）" allow-clear style="flex: 1">
+              <el-option v-for="s in userSeries" :key="s.id" :label="s.title" :value="s.id" />
+            </el-select>
+            <el-button size="small" @click="showCreateSeries = true">新建</el-button>
+          </div>
+        </el-form-item>
+
         <el-form-item label="内容" prop="content">
           <MdEditor
             v-model="form.content"
@@ -63,6 +72,20 @@
           </el-button>
         </el-form-item>
       </el-form>
+      <el-dialog v-model="showCreateSeries" title="新建系列" width="420px" append-to-body>
+        <el-form label-position="top">
+          <el-form-item label="系列名称" required>
+            <el-input v-model="newSeriesTitle" placeholder="请输入系列名称" maxlength="100" />
+          </el-form-item>
+          <el-form-item label="简介">
+            <el-input v-model="newSeriesDesc" type="textarea" :rows="2" placeholder="可选" maxlength="500" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <el-button @click="showCreateSeries = false">取消</el-button>
+          <el-button type="primary" :loading="creatingSeries" @click="handleCreateSeries">创建</el-button>
+        </template>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -70,7 +93,8 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { articleApi, topicApi } from '@/api'
+import { articleApi, topicApi, seriesApi } from '@/api'
+import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
@@ -78,9 +102,15 @@ import request from '@/utils/request'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 const formRef = ref()
 const submitting = ref(false)
 const topics = ref([])
+const userSeries = ref([])
+const showCreateSeries = ref(false)
+const newSeriesTitle = ref('')
+const newSeriesDesc = ref('')
+const creatingSeries = ref(false)
 
 const articleId = computed(() => route.params.id)
 const isEdit = computed(() => !!articleId.value)
@@ -89,7 +119,8 @@ const form = reactive({
   title: '',
   topicId: '',
   content: '',
-  tags: ''
+  tags: '',
+  seriesId: null,
 })
 
 const toolbars = [
@@ -147,6 +178,7 @@ const fetchArticle = async () => {
     form.content = data.content || ''
     form.topicId = data.topic?.id || ''
     form.tags = data.tags || ''
+    form.seriesId = data.series?.id || null
   } catch {
     ElMessage.error('加载文章失败')
     router.push('/articles')
@@ -161,7 +193,8 @@ const doCreate = async (status) => {
       content: form.content,
       topicId: form.topicId,
       tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-      status
+      status,
+      seriesId: form.seriesId || null,
     }
     const res = await articleApi.create(payload)
     if (status === 'DRAFT') {
@@ -189,7 +222,8 @@ const handleSubmit = async () => {
           title: form.title,
           content: form.content,
           topicId: form.topicId,
-          tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+          tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+          seriesId: form.seriesId || null,
         }
         await articleApi.update(articleId.value, payload)
         ElMessage.success('文章修改成功')
@@ -213,8 +247,41 @@ const handleSaveDraft = async () => {
   })
 }
 
+const fetchUserSeries = async () => {
+  try {
+    const res = await seriesApi.getList({ userId: userStore.user?.id })
+    userSeries.value = Array.isArray(res.data) ? res.data : []
+  } catch {
+    userSeries.value = []
+  }
+}
+
+const handleCreateSeries = async () => {
+  if (!newSeriesTitle.value.trim()) {
+    ElMessage.warning('请输入系列名称')
+    return
+  }
+  creatingSeries.value = true
+  try {
+    const res = await seriesApi.create({
+      title: newSeriesTitle.value.trim(),
+      description: newSeriesDesc.value.trim() || null,
+    })
+    ElMessage.success('系列创建成功')
+    showCreateSeries.value = false
+    newSeriesTitle.value = ''
+    newSeriesDesc.value = ''
+    userSeries.value.unshift(res.data)
+    form.seriesId = res.data.id
+  } catch {
+    ElMessage.error('创建失败')
+  } finally {
+    creatingSeries.value = false
+  }
+}
+
 onMounted(async () => {
-  await fetchTopics()
+  await Promise.all([fetchTopics(), fetchUserSeries()])
   if (isEdit.value) {
     await fetchArticle()
   }
@@ -229,5 +296,11 @@ onMounted(async () => {
   border-radius: 8px;
   padding: 32px;
   box-shadow: 0 0 0 1px var(--color-ring);
+}
+
+.series-select-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
 }
 </style>
