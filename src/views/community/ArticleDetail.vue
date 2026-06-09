@@ -161,6 +161,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useHead } from '@unhead/vue'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
 import { articleApi, commentApi, followApi, likeApi, bookmarkApi } from '@/api'
@@ -333,6 +334,28 @@ const submitComment = async () => {
     commentLoading.value = false
   }
 }
+
+const stripHtml = (text) => {
+  if (!text) return ''
+  return text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+}
+
+useHead(() => {
+  const a = article.value
+  const desc = a ? stripHtml(a.content).substring(0, 200) : ''
+  return {
+    title: a ? `${a.title} - 面试刷题系统` : '文章详情 - 面试刷题系统',
+    meta: [
+      { name: 'description', content: desc || a?.title || '面试刷题系统文章详情' },
+      { property: 'og:title', content: a?.title || '' },
+      { property: 'og:description', content: desc.substring(0, 300) || '' },
+      { property: 'og:type', content: 'article' },
+      { property: 'og:url', content: window.location.href },
+      { property: 'og:site_name', content: '面试刷题系统' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+    ]
+  }
+})
 
 const formatDate = (dateStr) => {
   if (!dateStr) return ''

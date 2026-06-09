@@ -134,6 +134,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useHead } from '@unhead/vue'
 import { useUserStore } from '@/stores/user'
 import { userApi, followApi, blockApi } from '@/api'
 import { ElMessage } from 'element-plus'
@@ -233,6 +234,22 @@ const formatDate = (dateStr) => {
   const pad = (n) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
+
+useHead(() => {
+  const p = profile.value
+  const name = p?.nickname || p?.username || ''
+  const desc = p?.bio || `${name}的主页`
+  return {
+    title: name ? `${name} - 面试刷题系统` : '作者主页 - 面试刷题系统',
+    meta: [
+      { name: 'description', content: desc },
+      { property: 'og:title', content: name },
+      { property: 'og:description', content: desc },
+      { property: 'og:type', content: 'profile' },
+      { property: 'og:url', content: window.location.href },
+    ]
+  }
+})
 
 onMounted(async () => {
   await fetchProfile()

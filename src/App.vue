@@ -21,6 +21,7 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useHead } from '@unhead/vue'
 import Header from '@/components/Header.vue'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
@@ -29,6 +30,10 @@ import '@/styles/variables.css'
 const route = useRoute()
 const appStore = useAppStore()
 const userStore = useUserStore()
+
+useHead(() => ({
+  title: route.meta?.title ? `${route.meta.title} - 面试刷题系统` : '面试刷题系统',
+}))
 
 onMounted(() => {
   userStore.initializeAuth()

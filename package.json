@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@unhead/vue": "^1.11.20",
     "axios": "^1.6.8",
     "dompurify": "^3.4.7",
     "echarts": "^6.1.0",
