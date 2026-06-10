@@ -235,6 +235,29 @@ npm run build
 npm run preview
 ```
 
+## Docker 部署
+
+```bash
+# 从项目根目录构建镜像
+docker compose build frontend
+
+# 或一键启动全栈服务
+docker compose up -d
+
+# 访问 http://localhost:3000
+```
+
+前端镜像基于 `nginx:alpine`，生产环境通过 nginx 反向代理 `/api` 到后端，SSE 连接保持常开。
+
+## 持续集成
+
+项目已配置 GitHub Actions CI，每次 push 或 PR 到 `main` 分支时自动执行前端构建。
+配置位于 `.github/workflows/ci.yml`。
+
+## 构建优化
+
+- **分包策略**：ECharts、md-editor-v3、Element Plus 拆分为独立 chunk（`manualChunks`），其余 `node_modules` 归入 `vendor` chunk，减少主 bundle 体积并利用浏览器缓存
+
 ## 配置说明
 
 ### 环境变量 (.env)
