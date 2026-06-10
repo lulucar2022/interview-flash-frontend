@@ -251,7 +251,10 @@ docker compose up -d
 
 ## 持续集成
 
-项目已配置 GitHub Actions CI，每次 push 或 PR 到 `main` 分支时自动执行前端构建。
+本仓库已配置 GitHub Actions CI，每次 push 或 PR 到 `main` 分支时自动执行：
+- `npm ci` — 精确安装依赖
+- `npm run build` — 构建生产产物
+
 配置位于 `.github/workflows/ci.yml`。
 
 ## 构建优化
