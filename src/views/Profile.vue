@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-container page-container">
+  <div class="profile-container page-container" v-loading="loading">
     <div class="profile-header">
       <div class="avatar-section">
         <div class="avatar">
@@ -13,7 +13,7 @@
     </div>
     
     <el-row :gutter="20">
-      <el-col :span="16">
+      <el-col :xs="24" :sm="24" :md="16">
         <div class="profile-card" v-tilt>
           <h3>基本信息</h3>
           <el-form
@@ -83,7 +83,7 @@
         </div>
       </el-col>
       
-      <el-col :span="8">
+      <el-col :xs="24" :sm="24" :md="8">
         <div class="profile-card stats-card" v-tilt>
           <h3>学习统计</h3>
           <div class="stats-list">
@@ -228,6 +228,7 @@ const userStore = useUserStore()
 
 const formRef = ref()
 const passwordFormRef = ref()
+const loading = ref(true)
 
 const profileForm = reactive({
   username: '',
@@ -421,17 +422,24 @@ const handleLogout = () => {
   router.push('/login')
 }
 
-onMounted(() => {
+onMounted(async () => {
+  loading.value = true
   profileForm.username = userStore.user?.username || ''
   profileForm.email = userStore.user?.email || ''
   profileForm.displayName = userStore.user?.displayName || ''
-  
-  loadStatistics()
-  loadFavorites()
-  loadMyArticles()
-  loadSocialData()
-  loadArticleBookmarks()
-  loadBlockedUsers()
+
+  try {
+    await Promise.all([
+      loadStatistics(),
+      loadFavorites(),
+      loadMyArticles(),
+      loadSocialData(),
+      loadArticleBookmarks(),
+      loadBlockedUsers()
+    ])
+  } finally {
+    loading.value = false
+  }
 })
 </script>
 
@@ -441,8 +449,8 @@ onMounted(() => {
 }
 
 .profile-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-md);
   padding: 32px;
   margin-bottom: 24px;
 }
@@ -457,8 +465,8 @@ onMounted(() => {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: #fff;
-  color: #667eea;
+  background: var(--color-surface);
+  color: var(--color-interactive);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -467,9 +475,9 @@ onMounted(() => {
 }
 
 .user-info h2 {
-  color: #fff;
-  font-size: 24px;
-  margin-bottom: 8px;
+  color: var(--color-text-on-primary);
+  font-size: var(--font-2xl);
+  margin-bottom: var(--spacing-sm);
 }
 
 .user-info p {
@@ -477,81 +485,81 @@ onMounted(() => {
 }
 
 .profile-card {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   padding: 24px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .profile-card h3 {
-  font-size: 18px;
-  color: #303133;
+  font-size: var(--font-lg);
+  color: var(--color-text-primary);
   margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #eee;
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .stats-card .stats-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--spacing-md);
 }
 
 .stat-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
-  background: #f5f7fa;
-  border-radius: 8px;
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
 }
 
-.stat-label {
-  color: #606266;
+.stat-item .stat-label {
+  color: var(--color-text-secondary);
 }
 
-.stat-value {
+.stat-item .stat-value {
   font-weight: bold;
-  font-size: 18px;
+  font-size: var(--font-lg);
 }
 
 .stat-value.success {
-  color: #67C23A;
+  color: var(--color-success);
 }
 
 .stat-value.danger {
-  color: #F56C6C;
+  color: var(--color-danger);
 }
 
 .stat-value.primary {
-  color: #409EFF;
+  color: var(--color-interactive);
 }
 
 .favorites-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-md);
 }
 
 .favorite-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
-  background: #f5f7fa;
-  border-radius: 8px;
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: var(--transition-slow);
 }
 
 .favorite-item:hover {
-  background: #ecf5ff;
+  background: var(--el-color-primary-light-9);
 }
 
 .favorite-title {
-  color: #606266;
-  font-size: 14px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-base);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -559,19 +567,19 @@ onMounted(() => {
 }
 
 .favorite-date {
-  color: #909399;
-  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-xs);
   flex-shrink: 0;
 }
 
 .danger-zone {
-  border: 1px solid #fde2e2;
+  border: 1px solid var(--color-danger);
 }
 
 .block-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-sm);
 }
 
 .block-item {
@@ -579,82 +587,55 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 10px;
-  background: #f5f7fa;
-  border-radius: 8px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
 }
 
 .block-item-name {
   flex: 1;
-  font-size: 14px;
-  color: #303133;
+  font-size: var(--font-base);
+  color: var(--color-text-primary);
 }
 
-.favorites-tabs {
-  display: flex;
-  gap: 4px;
-  background: #f5f5f5;
-  border-radius: 6px;
-  padding: 2px;
-  margin-bottom: 16px;
-}
-
-.fav-tab {
-  flex: 1;
-  text-align: center;
-  padding: 6px 0;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  color: #666;
-  transition: all 0.2s;
-}
-
-.fav-tab:hover {
-  color: #409EFF;
-}
-
-.fav-tab.active {
-  background: #fff;
-  color: #409EFF;
-  font-weight: 500;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
+.favorites-tabs,
 .social-tabs {
   display: flex;
   gap: 4px;
-  background: #f5f5f5;
+  background: var(--color-bg-secondary);
   border-radius: 6px;
   padding: 2px;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
 }
 
+.fav-tab,
 .social-tab {
   flex: 1;
   text-align: center;
   padding: 6px 0;
-  border-radius: 4px;
+  border-radius: var(--spacing-xs);
   cursor: pointer;
-  font-size: 13px;
-  color: #666;
-  transition: all 0.2s;
+  font-size: var(--font-sm);
+  color: var(--color-text-secondary);
+  transition: var(--transition-base);
 }
 
+.fav-tab:hover,
 .social-tab:hover {
-  color: #409EFF;
+  color: var(--color-interactive);
 }
 
+.fav-tab.active,
 .social-tab.active {
-  background: #fff;
-  color: #409EFF;
+  background: var(--color-surface);
+  color: var(--color-interactive);
   font-weight: 500;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .social-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-sm);
 }
 
 .social-item {
@@ -662,14 +643,14 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 10px;
-  background: #f5f7fa;
-  border-radius: 8px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--transition-base);
 }
 
 .social-item:hover {
-  background: #ecf5ff;
+  background: var(--el-color-primary-light-9);
 }
 
 .social-item-text {
@@ -679,15 +660,15 @@ onMounted(() => {
 }
 
 .social-item-name {
-  font-size: 14px;
-  color: #303133;
+  font-size: var(--font-base);
+  color: var(--color-text-primary);
   font-weight: 500;
 }
 
 .mutual-tag {
   font-size: 11px;
-  color: #409EFF;
-  background: #ecf5ff;
+  color: var(--color-interactive);
+  background: var(--el-color-primary-light-9);
   padding: 1px 6px;
   border-radius: 3px;
   display: inline-block;
@@ -697,27 +678,27 @@ onMounted(() => {
 .my-articles-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-md);
 }
 
 .my-article-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
-  background: #f5f7fa;
-  border-radius: 8px;
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: var(--transition-slow);
 }
 
 .my-article-item:hover {
-  background: #ecf5ff;
+  background: var(--el-color-primary-light-9);
 }
 
 .article-title {
-  color: #303133;
-  font-size: 14px;
+  color: var(--color-text-primary);
+  font-size: var(--font-base);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -725,9 +706,21 @@ onMounted(() => {
 }
 
 .article-date {
-  color: #909399;
-  font-size: 12px;
-  margin-left: 12px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-xs);
+  margin-left: var(--spacing-md);
   flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .profile-header {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
 }
 </style>

@@ -142,6 +142,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { questionApi, progressApi, wrongApi } from '@/api'
 import { useUserStore } from '@/stores/user'
+import { useQuestionHelpers } from '@/composables/useQuestionHelpers'
 import { ElMessage } from 'element-plus'
 import { Star } from '@element-plus/icons-vue'
 import { CircleCheckFilled } from '@element-plus/icons-vue'
@@ -149,6 +150,7 @@ import { CircleCheckFilled } from '@element-plus/icons-vue'
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const { getTypeText, getTypeTag, getDifficultyText, getDifficultyType } = useQuestionHelpers()
 
 const loading = ref(false)
 const question = ref(null)
@@ -258,42 +260,6 @@ const addToWrong = async () => {
   }
 }
 
-const getDifficultyType = (difficulty) => {
-  const types = { EASY: 'success', MEDIUM: 'warning', HARD: 'danger' }
-  return types[difficulty] || 'info'
-}
-
-const getDifficultyText = (difficulty) => {
-  const texts = { EASY: '简单', MEDIUM: '中等', HARD: '困难' }
-  return texts[difficulty] || difficulty
-}
-
-const getTypeText = (type) => {
-  const texts = {
-    SINGLE_CHOICE: '单选题',
-    MULTIPLE_CHOICE: '多选题',
-    TRUE_FALSE: '判断题',
-    FILL_BLANK: '填空题',
-    SHORT_ANSWER: '简答题',
-    CODING: '编程题',
-    SCENARIO: '情景分析题'
-  }
-  return texts[type] || type
-}
-
-const getTypeTag = (type) => {
-  const tags = {
-    SINGLE_CHOICE: 'primary',
-    MULTIPLE_CHOICE: 'success',
-    TRUE_FALSE: 'warning',
-    FILL_BLANK: 'info',
-    SHORT_ANSWER: 'info',
-    CODING: 'danger',
-    SCENARIO: 'danger'
-  }
-  return tags[type] || 'info'
-}
-
 onMounted(() => {
   loadQuestion()
 })
@@ -307,37 +273,37 @@ onMounted(() => {
 }
 
 .question-detail {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   padding: 32px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .question-header {
   margin-bottom: 24px;
   padding-bottom: 24px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .question-header h1 {
-  font-size: 24px;
-  color: #303133;
-  margin-bottom: 16px;
+  font-size: var(--font-2xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
 }
 
 .question-meta {
   display: flex;
   align-items: center;
-  gap: 16px;
-  color: #909399;
-  font-size: 14px;
+  gap: var(--spacing-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-base);
 }
 
 .category {
-  background: #ecf5ff;
-  color: #409EFF;
-  padding: 4px 12px;
-  border-radius: 4px;
+  background: var(--el-color-primary-light-9);
+  color: var(--color-interactive);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--spacing-xs);
 }
 
 .card {
@@ -345,25 +311,25 @@ onMounted(() => {
 }
 
 .card h2 {
-  font-size: 18px;
-  color: #303133;
-  margin-bottom: 16px;
+  font-size: var(--font-lg);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
 }
 
 .content-text {
-  color: #606266;
+  color: var(--color-text-secondary);
   line-height: 1.8;
-  font-size: 15px;
+  font-size: var(--font-md);
 }
 
 .answer-section {
-  background: #f5f7fa;
+  background: var(--color-bg-secondary);
   padding: 24px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 .answer-header h2 {
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-md);
 }
 
 .answer-options {
@@ -374,26 +340,26 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   width: 100%;
-  padding: 12px 16px;
-  margin-bottom: 8px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  transition: all 0.2s;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--spacing-xs);
+  transition: var(--transition-base);
 }
 
 .option-item:hover {
-  border-color: #409EFF;
-  background: #f8f9ff;
+  border-color: var(--color-interactive);
+  background: var(--el-color-primary-light-9);
 }
 
 .option-label {
   font-weight: 600;
-  margin-right: 8px;
-  color: #409EFF;
+  margin-right: var(--spacing-sm);
+  color: var(--color-interactive);
 }
 
 .option-content {
-  color: #303133;
+  color: var(--color-text-primary);
 }
 
 .true-false-group {
@@ -402,13 +368,13 @@ onMounted(() => {
 }
 
 .tf-option {
-  padding: 16px 32px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
+  padding: var(--spacing-md) 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--spacing-xs);
 }
 
 .tf-option:hover {
-  border-color: #409EFF;
+  border-color: var(--color-interactive);
 }
 
 .answer-input {
@@ -416,42 +382,42 @@ onMounted(() => {
 }
 
 .answer-actions {
-  margin-top: 16px;
+  margin-top: var(--spacing-md);
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-md);
 }
 
 .correct-answer {
   margin-top: 24px;
   padding-top: 24px;
-  border-top: 1px dashed #ddd;
+  border-top: 1px dashed var(--color-border);
 }
 
 .correct-answer h3 {
   font-size: 16px;
-  color: #67C23A;
-  margin-bottom: 12px;
+  color: var(--color-success);
+  margin-bottom: var(--spacing-md);
 }
 
 .answer-text {
-  color: #606266;
+  color: var(--color-text-secondary);
   line-height: 1.8;
-  background: #fff;
-  padding: 16px;
-  border-radius: 8px;
+  background: var(--color-surface);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
   white-space: pre-wrap;
 }
 
 .correct-option {
-  padding: 8px 12px;
-  margin-bottom: 8px;
-  background: #fff;
-  border-radius: 4px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  background: var(--color-surface);
+  border-radius: var(--spacing-xs);
   position: relative;
 }
 
 .correct-option.correct {
-  color: #67C23A;
+  color: var(--color-success);
   font-weight: 600;
 }
 
@@ -464,7 +430,7 @@ onMounted(() => {
 
 .action-buttons {
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-md);
   justify-content: center;
 }
 </style>

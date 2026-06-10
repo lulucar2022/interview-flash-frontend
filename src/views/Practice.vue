@@ -247,11 +247,13 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { questionApi, progressApi, categoryApi } from '@/api'
 import { useUserStore } from '@/stores/user'
+import { useQuestionHelpers } from '@/composables/useQuestionHelpers'
 import { ElMessage } from 'element-plus'
 import { CircleCheckFilled } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const userStore = useUserStore()
+const { getTypeText, getTypeTag, getDifficultyText, getDifficultyType } = useQuestionHelpers()
 
 const started = ref(false)
 const loading = ref(false)
@@ -419,11 +421,6 @@ const toggleFavorite = async () => {
 
 const toggleShowAnswer = () => { showAnswer.value = !showAnswer.value }
 
-const getTypeText = (t) => typeOptions[t] || t
-const getTypeTag = (t) => ({ SINGLE_CHOICE:'primary', MULTIPLE_CHOICE:'success', TRUE_FALSE:'warning', FILL_BLANK:'info', SHORT_ANSWER:'info', CODING:'danger', SCENARIO:'danger' }[t] || 'info')
-const getDifficultyType = (d) => ({ EASY:'success', MEDIUM:'warning', HARD:'danger' }[d] || 'info')
-const getDifficultyText = (d) => ({ EASY:'简单', MEDIUM:'中等', HARD:'困难' }[d] || d)
-
 watch(currentQuestion, async (q) => {
   if (q) {
     try {
@@ -444,22 +441,22 @@ onMounted(() => { loadCategories() })
 }
 
 .setup-card {
-  background: #fff;
-  border-radius: 16px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
   padding: 48px 40px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-xl);
   text-align: center;
 }
 
 .setup-card h1 {
-  font-size: 28px;
-  color: #303133;
-  margin-bottom: 8px;
+  font-size: var(--font-3xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
 }
 
 .setup-desc {
-  color: #909399;
-  font-size: 15px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-md);
   margin-bottom: 36px;
 }
 
@@ -471,9 +468,9 @@ onMounted(() => { loadCategories() })
 .config-item label,
 .count-row label {
   display: block;
-  font-size: 14px;
-  color: #606266;
-  margin-bottom: 8px;
+  font-size: var(--font-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
   font-weight: 500;
 }
 
@@ -500,8 +497,8 @@ onMounted(() => { loadCategories() })
 }
 
 .question-category {
-  font-size: 12px;
-  color: #909399;
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
 }
 
 .practice-header {
@@ -587,12 +584,12 @@ onMounted(() => { loadCategories() })
 
 .answer-options :deep(.el-radio:hover), .answer-options :deep(.el-checkbox:hover) {
   border-color: var(--color-interactive);
-  background: #f8f9ff;
+  background: var(--el-color-primary-light-9);
 }
 
 .answer-options :deep(.el-radio.is-checked), .answer-options :deep(.el-checkbox.is-checked) {
   border-color: var(--color-interactive);
-  background: #f0f5ff;
+  background: var(--el-color-primary-light-9);
 }
 
 .answer-options :deep(.el-radio__label), .answer-options :deep(.el-checkbox__label) {
@@ -668,8 +665,8 @@ onMounted(() => { loadCategories() })
 
 .answer-preview {
   margin-top: 24px;
-  padding: 16px;
-  background: #f0f9eb;
+  padding: var(--spacing-md);
+  background: var(--el-color-success-light-9);
   border-radius: var(--radius-sm);
 }
 
@@ -685,10 +682,10 @@ onMounted(() => { loadCategories() })
 }
 
 .correct-option {
-  padding: 8px 12px;
-  margin-bottom: 8px;
-  background: #fff;
-  border-radius: 4px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  background: var(--color-surface);
+  border-radius: var(--spacing-xs);
   position: relative;
 }
 
@@ -745,7 +742,7 @@ onMounted(() => { loadCategories() })
 }
 
 .dot.wrong {
-  background: #F56C6C;
+  background: var(--color-danger);
 }
 
 .empty-state {
@@ -770,7 +767,7 @@ onMounted(() => { loadCategories() })
 }
 
 .result-icon.wrong {
-  color: #F56C6C;
+  color: var(--color-danger);
 }
 
 .result-text {
@@ -810,7 +807,7 @@ onMounted(() => { loadCategories() })
 }
 
 .finish-stats .stat-value.danger {
-  color: #F56C6C;
+  color: var(--color-danger);
 }
 
 .finish-stats .stat-label {

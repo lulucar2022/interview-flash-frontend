@@ -113,12 +113,14 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useQuestionHelpers } from '@/composables/useQuestionHelpers'
 import { categoryApi, questionApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+const { getDifficultyText, getDifficultyType } = useQuestionHelpers()
 
 const loading = ref(false)
 const questions = ref([])
@@ -240,16 +242,6 @@ const goToPractice = (id) => {
   router.push(`/practice?questionId=${id}`)
 }
 
-const getDifficultyType = (difficulty) => {
-  const types = { EASY: 'success', MEDIUM: 'warning', HIGH: 'danger' }
-  return types[difficulty] || 'info'
-}
-
-const getDifficultyText = (difficulty) => {
-  const texts = { EASY: '简单', MEDIUM: '中等', HIGH: '困难' }
-  return texts[difficulty] || difficulty
-}
-
 onMounted(() => {
   loadCategories().then(() => loadQuestions())
 })
@@ -265,23 +257,25 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
 }
 
 .filters {
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-md);
   align-items: center;
 }
 
 .filter-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-sm);
 }
 
 .filter-label {
-  font-size: 14px;
-  color: #606266;
+  font-size: var(--font-base);
+  color: var(--color-text-secondary);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -294,39 +288,39 @@ onMounted(() => {
 }
 
 .question-card {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   padding: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: var(--transition-slow);
 }
 
 .question-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-xl);
 }
 
 .question-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-md);
 }
 
 .question-title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--color-text-primary);
   flex: 1;
-  margin-right: 12px;
+  margin-right: var(--spacing-md);
 }
 
 .question-content {
-  color: #606266;
-  font-size: 14px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-base);
   line-height: 1.6;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -341,11 +335,11 @@ onMounted(() => {
 }
 
 .category-tag {
-  background: #ecf5ff;
-  color: #409EFF;
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-size: 12px;
+  background: var(--el-color-primary-light-9);
+  color: var(--color-interactive);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--spacing-xs);
+  font-size: var(--font-xs);
 }
 
 .empty-state {
@@ -360,7 +354,7 @@ onMounted(() => {
 
 .page-actions {
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-md);
 }
 
 .import-body {
@@ -371,37 +365,48 @@ onMounted(() => {
 
 .upload-icon {
   font-size: 40px;
-  margin-bottom: 8px;
+  margin-bottom: var(--spacing-sm);
 }
 
 .upload-text {
-  font-size: 14px;
-  color: #606266;
+  font-size: var(--font-base);
+  color: var(--color-text-secondary);
 }
 
 .upload-hint {
-  font-size: 12px;
-  color: #c0c4cc;
-  margin-top: 4px;
+  font-size: var(--font-xs);
+  color: var(--color-placeholder);
+  margin-top: var(--spacing-xs);
 }
 
 .import-actions {
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-md);
   justify-content: center;
 }
 
 .import-result {
-  padding: 16px;
-  background: #f5f7fa;
-  border-radius: 8px;
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
 }
 
 .error-list {
-  margin-top: 12px;
+  margin-top: var(--spacing-md);
   padding-left: 20px;
-  font-size: 13px;
-  color: #e6a23c;
+  font-size: var(--font-sm);
+  color: var(--color-warning);
   line-height: 1.8;
+}
+
+@media (max-width: 768px) {
+  .question-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 </style>

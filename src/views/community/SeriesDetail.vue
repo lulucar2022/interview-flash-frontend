@@ -80,6 +80,7 @@ import { useUserStore } from '@/stores/user'
 import { seriesApi } from '@/api'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+import { getGradientById } from './constants'
 
 const route = useRoute()
 const router = useRouter()
@@ -103,14 +104,8 @@ const isOwner = computed(() => {
 })
 
 const headerGradient = computed(() => {
-  const gradients = [
-    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-  ]
   const id = series.value?.id || 0
-  return gradients[id % gradients.length]
+  return getGradientById(id)
 })
 
 const fetchDetail = async () => {
@@ -188,7 +183,7 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #409EFF;
+  color: var(--color-interactive);
   cursor: pointer;
   font-size: 14px;
   margin-bottom: 20px;
@@ -197,7 +192,7 @@ onMounted(() => {
 .series-header {
   border-radius: 12px;
   padding: 40px;
-  color: #fff;
+  color: var(--color-surface);
   margin-bottom: 24px;
 }
 
@@ -232,15 +227,15 @@ onMounted(() => {
 }
 
 .series-actions .el-button {
-  color: #fff;
+  color: var(--color-surface);
   border-color: rgba(255,255,255,0.5);
 }
 
 .article-list {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .article-item {
@@ -249,7 +244,7 @@ onMounted(() => {
   padding: 16px 24px;
   cursor: pointer;
   transition: background 0.2s;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .article-item:last-child {
@@ -257,15 +252,15 @@ onMounted(() => {
 }
 
 .article-item:hover {
-  background: #f5f7fa;
+  background: var(--color-bg-secondary);
 }
 
 .article-order {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #ecf5ff;
-  color: #409EFF;
+  background: var(--el-color-primary-light-9);
+  color: var(--color-interactive);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -283,7 +278,7 @@ onMounted(() => {
 .article-title {
   font-size: 15px;
   font-weight: 500;
-  color: #303133;
+  color: var(--color-text-primary);
   margin: 0 0 4px 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -292,7 +287,7 @@ onMounted(() => {
 
 .article-meta {
   font-size: 12px;
-  color: #c0c4cc;
+  color: var(--color-text-placeholder);
   display: flex;
   gap: 16px;
 }

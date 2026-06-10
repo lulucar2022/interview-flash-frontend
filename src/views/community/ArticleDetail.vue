@@ -375,18 +375,18 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #409EFF;
+  color: var(--color-interactive);
   cursor: pointer;
   font-size: 14px;
   margin-bottom: 20px;
 }
 
 .back-link:hover {
-  color: #66b1ff;
+  color: var(--el-color-primary-light-3);
 }
 
 .article-detail {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 8px;
   padding: 32px;
   box-shadow: 0 0 0 1px var(--color-ring);
@@ -396,7 +396,7 @@ onMounted(() => {
 .detail-title {
   font-size: 28px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--color-text-primary);
   margin: 0 0 20px 0;
   line-height: 1.4;
 }
@@ -406,7 +406,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding-bottom: 20px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--color-border);
   margin-bottom: 24px;
   flex-wrap: wrap;
   gap: 12px;
@@ -421,7 +421,7 @@ onMounted(() => {
 }
 
 .author-info:hover .author-name {
-  color: #409EFF;
+  color: var(--color-interactive);
 }
 
 .author-text {
@@ -432,12 +432,12 @@ onMounted(() => {
 .author-name {
   font-size: 15px;
   font-weight: 500;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .publish-date {
   font-size: 12px;
-  color: #999;
+  color: var(--color-text-secondary);
 }
 
 .meta-actions {
@@ -448,16 +448,16 @@ onMounted(() => {
 }
 
 .topic-badge {
-  background: #ecf5ff;
-  color: #409EFF;
+  background: var(--el-color-primary-light-9);
+  color: var(--color-interactive);
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 12px;
 }
 
 .series-badge {
-  background: #f0f9eb;
-  color: #67C23A;
+  background: var(--el-color-success-light-9);
+  color: var(--color-success);
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 12px;
@@ -474,7 +474,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #999;
+  color: var(--color-text-secondary);
   font-size: 13px;
 }
 
@@ -484,11 +484,11 @@ onMounted(() => {
 }
 
 .like-btn:hover {
-  color: #e6a23c;
+  color: var(--color-warning);
 }
 
 .like-btn.liked {
-  color: #e6a23c;
+  color: var(--color-warning);
 }
 
 .article-content {
@@ -500,7 +500,7 @@ onMounted(() => {
 }
 
 .comments-section {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 8px;
   padding: 24px 32px;
   box-shadow: 0 0 0 1px var(--color-ring);
@@ -516,14 +516,14 @@ onMounted(() => {
 .section-title {
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
 .comment-sort {
   display: flex;
   gap: 4px;
-  background: #f5f5f5;
+  background: var(--color-bg-secondary);
   border-radius: 6px;
   padding: 2px;
 }
@@ -533,17 +533,17 @@ onMounted(() => {
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
-  color: #666;
-  transition: all 0.2s;
+  color: var(--color-text-secondary);
+  transition: var(--transition-base);
 }
 
 .sort-btn:hover {
-  color: #409EFF;
+  color: var(--color-interactive);
 }
 
 .sort-btn.active {
-  background: #fff;
-  color: #409EFF;
+  background: var(--color-surface);
+  color: var(--color-interactive);
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 

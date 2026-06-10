@@ -137,45 +137,45 @@ onMounted(() => {
 }
 
 .stats-row {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   padding: 24px;
   margin-bottom: 24px;
   display: flex;
   gap: 32px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .stat-item {
   text-align: center;
 }
 
-.stat-value {
+.stat-item .stat-value {
   font-size: 32px;
   font-weight: bold;
-  color: #F56C6C;
+  color: var(--color-danger);
   display: block;
 }
 
-.stat-label {
-  font-size: 14px;
-  color: #909399;
+.stat-item .stat-label {
+  font-size: var(--font-base);
+  color: var(--color-text-secondary);
 }
 
 .wrong-list {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   padding: 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .wrong-item {
   padding: 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background 0.3s;
+  transition: background var(--transition-slow);
 }
 
 .wrong-item:last-child {
@@ -183,7 +183,7 @@ onMounted(() => {
 }
 
 .wrong-item:hover {
-  background: #f5f7fa;
+  background: var(--color-bg-secondary);
 }
 
 .wrong-content {
@@ -193,24 +193,32 @@ onMounted(() => {
 .question-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
 }
 
 .question-header h3 {
   font-size: 16px;
-  color: #303133;
+  color: var(--color-text-primary);
 }
 
 .question-meta {
   display: flex;
-  gap: 16px;
-  color: #909399;
-  font-size: 14px;
+  gap: var(--spacing-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-base);
 }
 
 .wrong-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--spacing-sm);
+}
+
+@media (max-width: 768px) {
+  .wrong-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
 }
 </style>

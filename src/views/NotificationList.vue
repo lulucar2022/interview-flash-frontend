@@ -160,7 +160,7 @@ onMounted(() => {
 
 .notif-header h2 {
   font-size: 22px;
-  color: #303133;
+  color: var(--color-text-primary);
 }
 
 .notif-list {
@@ -173,21 +173,21 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 10px;
   padding: 16px 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .notif-card:hover {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .notif-card.unread {
-  border-left: 3px solid #409EFF;
-  background: #f8fbff;
+  border-left: 3px solid var(--color-interactive);
+  background: var(--el-color-primary-light-9);
 }
 
 .notif-card.read {
@@ -209,7 +209,7 @@ onMounted(() => {
 
 .notif-summary {
   font-size: 14px;
-  color: #303133;
+  color: var(--color-text-primary);
   line-height: 1.5;
   margin-bottom: 6px;
   word-break: break-word;
@@ -223,13 +223,13 @@ onMounted(() => {
 
 .notif-time {
   font-size: 12px;
-  color: #909399;
+  color: var(--color-text-secondary);
 }
 
 .unread-badge {
   font-size: 11px;
-  color: #409EFF;
-  background: #ecf5ff;
+  color: var(--color-interactive);
+  background: var(--el-color-primary-light-9);
   padding: 1px 6px;
   border-radius: 3px;
 }

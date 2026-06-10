@@ -264,20 +264,20 @@ function parseRgba(str) {
 
 .control-item label {
   font-size: 12px;
-  color: #909399;
+  color: var(--color-text-secondary);
   display: flex;
   justify-content: space-between;
   margin-bottom: 4px;
 }
 
 .control-item .val {
-  color: #409EFF;
+  color: var(--color-interactive);
   font-weight: 600;
 }
 
 .point-count {
   font-size: 12px;
-  color: #c0c4cc;
+  color: var(--color-text-placeholder);
   white-space: nowrap;
 }
 
@@ -310,6 +310,6 @@ canvas {
 
 .legend-label {
   font-size: 10px;
-  color: #909399;
+  color: var(--color-text-secondary);
 }
 </style>

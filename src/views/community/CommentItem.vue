@@ -238,18 +238,18 @@ export default {
 .comment-author {
   font-size: 13px;
   font-weight: 500;
-  color: #409EFF;
+  color: var(--color-interactive);
   text-decoration: none;
 }
 
 .comment-date {
   font-size: 11px;
-  color: #bbb;
+  color: var(--color-text-placeholder);
 }
 
 .comment-content {
   font-size: 14px;
-  color: #333;
+  color: var(--color-text-primary);
   line-height: 1.5;
   margin: 0 0 6px 0;
 }
@@ -262,7 +262,7 @@ export default {
 
 .action-btn {
   font-size: 12px;
-  color: #999;
+  color: var(--color-text-secondary);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -270,15 +270,15 @@ export default {
 }
 
 .action-btn:hover {
-  color: #409EFF;
+  color: var(--color-interactive);
 }
 
 .action-btn.danger:hover {
-  color: #F56C6C;
+  color: var(--color-danger);
 }
 
 .like-btn.liked {
-  color: #e6a23c;
+  color: var(--color-warning);
 }
 
 .edit-actions,
@@ -294,7 +294,7 @@ export default {
 }
 
 .comment-children {
-  border-left: 2px solid #f0f0f0;
+  border-left: 2px solid var(--color-border);
   padding-left: 0;
 }
 </style>

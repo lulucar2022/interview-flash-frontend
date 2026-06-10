@@ -53,6 +53,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { seriesApi } from '@/api'
+import { getGradientById } from './constants'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -65,16 +66,7 @@ const showCreateDialog = ref(false)
 const creating = ref(false)
 const createForm = ref({ title: '', description: '' })
 
-const gradients = [
-  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-  'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
-]
-
-const coverGradient = (id) => gradients[id % gradients.length]
+const coverGradient = (id) => getGradientById(id)
 
 const fetchSeries = async () => {
   loading.value = true
@@ -140,17 +132,17 @@ onMounted(() => {
 }
 
 .series-card {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .series-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
 .series-cover {
@@ -164,7 +156,7 @@ onMounted(() => {
 
 .series-article-count {
   background: rgba(0, 0, 0, 0.5);
-  color: #fff;
+  color: var(--color-text-on-primary);
   font-size: 12px;
   padding: 2px 10px;
   border-radius: 10px;
@@ -177,7 +169,7 @@ onMounted(() => {
 .series-title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--color-text-primary);
   margin: 0 0 8px 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -186,7 +178,7 @@ onMounted(() => {
 
 .series-desc {
   font-size: 13px;
-  color: #909399;
+  color: var(--color-text-secondary);
   margin: 0 0 12px 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -196,6 +188,6 @@ onMounted(() => {
 
 .series-meta {
   font-size: 12px;
-  color: #c0c4cc;
+  color: var(--color-text-placeholder);
 }
 </style>

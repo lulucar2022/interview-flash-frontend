@@ -261,7 +261,7 @@ onMounted(async () => {
 
 <style scoped>
 .profile-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-accent);
   border-radius: 12px;
   padding: 32px;
   margin-bottom: 24px;
@@ -277,7 +277,7 @@ onMounted(async () => {
 }
 
 .header-text h2 {
-  color: #fff;
+  color: var(--color-surface);
   font-size: 22px;
   margin: 0 0 6px 0;
 }
@@ -303,46 +303,46 @@ onMounted(async () => {
 }
 
 .stat-card {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 10px;
   padding: 20px;
   text-align: center;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .stat-value {
   font-size: 28px;
   font-weight: bold;
-  color: #303133;
+  color: var(--color-text-primary);
 }
 
 .stat-value.primary {
-  color: #409EFF;
+  color: var(--color-interactive);
 }
 
 .stat-value.success {
-  color: #67C23A;
+  color: var(--color-success);
 }
 
 .stat-label {
   font-size: 13px;
-  color: #909399;
+  color: var(--color-text-secondary);
   margin-top: 4px;
 }
 
 .articles-section {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .articles-section h3 {
   font-size: 18px;
-  color: #303133;
+  color: var(--color-text-primary);
   margin: 0 0 16px 0;
   padding-bottom: 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .article-card {
@@ -353,13 +353,13 @@ onMounted(async () => {
 }
 
 .article-card:hover .article-title {
-  color: #409EFF;
+  color: var(--color-interactive);
 }
 
 .article-title {
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
   margin: 0 0 10px 0;
   transition: color 0.2s;
 }
@@ -369,13 +369,13 @@ onMounted(async () => {
   align-items: center;
   gap: 14px;
   font-size: 13px;
-  color: #999;
+  color: var(--color-text-secondary);
   flex-wrap: wrap;
 }
 
 .topic-tag {
-  background: #ecf5ff;
-  color: #409EFF;
+  background: var(--el-color-primary-light-9);
+  color: var(--color-interactive);
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 12px;

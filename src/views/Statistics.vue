@@ -1,12 +1,12 @@
 <template>
-  <div class="page-container statistics-page">
+  <div class="page-container statistics-page" v-loading="loading">
     <h1 class="page-title">学习统计</h1>
 
     <!-- 概览卡片 -->
     <el-row :gutter="20" class="overview-row">
-      <el-col :span="6">
+      <el-col :xs="24" :sm="12" :md="6">
         <div class="stat-card" v-tilt>
-          <div class="stat-icon" style="background: #409EFF;">🔥</div>
+          <div class="stat-icon" style="background: var(--color-interactive);">🔥</div>
           <div class="stat-info">
             <div class="stat-value">{{ streak.currentStreak || 0 }}</div>
             <div class="stat-label">连续学习（天）</div>
@@ -14,9 +14,9 @@
           <div class="stat-extra">最长 {{ streak.maxStreak || 0 }} 天</div>
         </div>
       </el-col>
-      <el-col :span="6">
+      <el-col :xs="24" :sm="12" :md="6">
         <div class="stat-card" v-tilt>
-          <div class="stat-icon" style="background: #67C23A;">✅</div>
+          <div class="stat-icon" style="background: var(--color-success);">✅</div>
           <div class="stat-info">
             <div class="stat-value">{{ Math.round(accuracyRate) }}%</div>
             <div class="stat-label">近期正确率</div>
@@ -24,9 +24,9 @@
           <div class="stat-extra">近 30 天</div>
         </div>
       </el-col>
-      <el-col :span="6">
+      <el-col :xs="24" :sm="12" :md="6">
         <div class="stat-card" v-tilt>
-          <div class="stat-icon" style="background: #E6A23C;">📊</div>
+          <div class="stat-icon" style="background: var(--color-warning);">📊</div>
           <div class="stat-info">
             <div class="stat-value">{{ totalAnswered }}</div>
             <div class="stat-label">累计答题</div>
@@ -34,9 +34,9 @@
           <div class="stat-extra">{{ totalCorrect }} 道正确</div>
         </div>
       </el-col>
-      <el-col :span="6">
+      <el-col :xs="24" :sm="12" :md="6">
         <div class="stat-card" v-tilt>
-          <div class="stat-icon" style="background: #909399;">🏷️</div>
+          <div class="stat-icon" style="background: var(--color-info);">🏷️</div>
           <div class="stat-info">
             <div class="stat-value">{{ categoryData.length }}</div>
             <div class="stat-label">涉及分类</div>
@@ -57,13 +57,13 @@
 
     <!-- 折线图 + 饼图 -->
     <el-row :gutter="20">
-      <el-col :span="14">
+      <el-col :xs="24" :sm="24" :md="14">
         <div class="section" v-tilt>
           <div class="section-header"><h2>📈 正确率趋势</h2></div>
           <v-chart :option="trendOption" autoresize style="height: 300px" />
         </div>
       </el-col>
-      <el-col :span="10">
+      <el-col :xs="24" :sm="24" :md="10">
         <div class="section" v-tilt>
           <div class="section-header"><h2>🥧 分类分布</h2></div>
           <v-chart :option="categoryOption" autoresize style="height: 300px" />
@@ -75,18 +75,18 @@
     <div class="section" v-if="showCreationStats">
       <div class="section-header"><h2>📊 创作数据</h2></div>
       <el-row :gutter="20" class="overview-row">
-        <el-col :span="12">
+        <el-col :xs="24" :sm="12" :md="12">
           <div class="stat-card" v-tilt>
-            <div class="stat-icon" style="background: #409EFF;">👁️</div>
+            <div class="stat-icon" style="background: var(--color-interactive);">👁️</div>
             <div class="stat-info">
               <div class="stat-value">{{ totalViews }}</div>
               <div class="stat-label">文章总浏览量</div>
             </div>
           </div>
         </el-col>
-        <el-col :span="12">
+        <el-col :xs="24" :sm="12" :md="12">
           <div class="stat-card" v-tilt>
-            <div class="stat-icon" style="background: #67C23A;">👥</div>
+            <div class="stat-icon" style="background: var(--color-success);">👥</div>
             <div class="stat-info">
               <div class="stat-value">{{ currentFollowers }}</div>
               <div class="stat-label">累计粉丝</div>
@@ -95,11 +95,11 @@
         </el-col>
       </el-row>
       <el-row :gutter="20">
-        <el-col :span="12">
+        <el-col :xs="24" :sm="24" :md="12">
           <div class="section-header"><h3>📈 阅读趋势</h3></div>
           <v-chart :option="articleViewsOption" autoresize style="height: 260px" />
         </el-col>
-        <el-col :span="12">
+        <el-col :xs="24" :sm="24" :md="12">
           <div class="section-header"><h3>📈 粉丝趋势</h3></div>
           <v-chart :option="followerTrendOption" autoresize style="height: 260px" />
         </el-col>
@@ -128,6 +128,7 @@ use([CanvasRenderer, LineChart, PieChart,
 
 const userStore = useUserStore()
 
+const loading = ref(true)
 const dailyData = ref([])
 const categoryData = ref([])
 const streak = ref({ currentStreak: 0, maxStreak: 0 })
@@ -171,9 +172,9 @@ const trendOption = computed(() => {
       data: dates.map(d => d.count > 0 ? Math.round(d.correct / d.count * 100) : null),
       smooth: true,
       connectNulls: false,
-      lineStyle: { color: '#409EFF', width: 2 },
-      areaStyle: { color: 'rgba(64,158,255,0.1)' },
-      itemStyle: { color: '#409EFF' }
+      lineStyle: { color: '#5b76fe', width: 2 },
+      areaStyle: { color: 'rgba(91,118,254,0.1)' },
+      itemStyle: { color: '#5b76fe' }
     }]
   }
 })
@@ -224,9 +225,9 @@ const articleViewsOption = computed(() => {
       name: '浏览量', type: 'line',
       data: data.map(d => d.count),
       smooth: true,
-      lineStyle: { color: '#409EFF', width: 2 },
-      areaStyle: { color: 'rgba(64,158,255,0.1)' },
-      itemStyle: { color: '#409EFF' }
+      lineStyle: { color: '#5b76fe', width: 2 },
+      areaStyle: { color: 'rgba(91,118,254,0.1)' },
+      itemStyle: { color: '#5b76fe' }
     }]
   }
 })
@@ -250,14 +251,15 @@ const followerTrendOption = computed(() => {
       name: '粉丝数', type: 'line',
       data: data.map(d => d.count),
       smooth: true,
-      lineStyle: { color: '#67C23A', width: 2 },
-      areaStyle: { color: 'rgba(103,194,58,0.1)' },
-      itemStyle: { color: '#67C23A' }
+      lineStyle: { color: '#00b473', width: 2 },
+      areaStyle: { color: 'rgba(0,180,115,0.1)' },
+      itemStyle: { color: '#00b473' }
     }]
   }
 })
 
 onMounted(async () => {
+  loading.value = true
   try {
     const userId = userStore.user?.id
     if (!userId) return
@@ -282,6 +284,8 @@ onMounted(async () => {
     showCreationStats.value = true
   } catch (e) {
     console.error('加载统计数据失败', e)
+  } finally {
+    loading.value = false
   }
 })
 </script>
@@ -297,14 +301,15 @@ onMounted(async () => {
 }
 
 .stat-card {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   padding: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
   display: flex;
   align-items: center;
   gap: 14px;
   position: relative;
+  margin-bottom: var(--spacing-sm);
 }
 
 .stat-icon {
@@ -325,13 +330,13 @@ onMounted(async () => {
 .stat-value {
   font-size: 24px;
   font-weight: 700;
-  color: #303133;
+  color: var(--color-text-primary);
   line-height: 1.2;
 }
 
 .stat-label {
-  font-size: 13px;
-  color: #909399;
+  font-size: var(--font-sm);
+  color: var(--color-text-secondary);
 }
 
 .stat-extra {
@@ -339,14 +344,14 @@ onMounted(async () => {
   bottom: 8px;
   right: 16px;
   font-size: 11px;
-  color: #c0c4cc;
+  color: var(--color-placeholder);
 }
 
 .section {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   padding: 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
   margin-bottom: 20px;
 }
 
@@ -354,17 +359,23 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
 }
 
 .section-header h2 {
-  font-size: 18px;
-  color: #303133;
+  font-size: var(--font-lg);
+  color: var(--color-text-primary);
   margin: 0;
 }
 
 .section-desc {
-  font-size: 12px;
-  color: #c0c4cc;
+  font-size: var(--font-xs);
+  color: var(--color-placeholder);
+}
+
+@media (max-width: 768px) {
+  .overview-row .stat-card {
+    margin-bottom: var(--spacing-sm);
+  }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="home-container page-container">
+  <div class="home-container page-container" v-loading="loading">
     <div class="welcome-section">
       <div class="welcome-text">
         <h1>欢迎回来，{{ userStore.user?.displayName || userStore.user?.username }} 👋</h1>
@@ -51,29 +51,29 @@
     
     <div class="stats-section">
       <el-row :gutter="20">
-        <el-col :span="8">
+        <el-col :xs="24" :sm="12" :md="8">
           <div class="stat-card" v-tilt>
-            <div class="stat-icon" style="background: #409EFF;">📚</div>
+            <div class="stat-icon" style="background: var(--color-interactive);">📚</div>
             <div class="stat-info">
               <div class="stat-value">{{ statistics.totalQuestions || 0 }}</div>
               <div class="stat-label">总题目数</div>
             </div>
-            <el-progress :percentage="100" :stroke-width="4" color="#409EFF" class="stat-bar" />
+            <el-progress :percentage="100" :stroke-width="4" color="var(--color-interactive)" class="stat-bar" />
           </div>
         </el-col>
-        <el-col :span="8">
+        <el-col :xs="24" :sm="12" :md="8">
           <div class="stat-card" v-tilt>
-            <div class="stat-icon" style="background: #67C23A;">✅</div>
+            <div class="stat-icon" style="background: var(--color-success);">✅</div>
             <div class="stat-info">
               <div class="stat-value">{{ Math.round(parseFloat(statistics.progressRate || 0)) }}%</div>
               <div class="stat-label">掌握率</div>
             </div>
-            <el-progress :percentage="Math.round(parseFloat(statistics.progressRate || 0))" :stroke-width="4" color="#67C23A" class="stat-bar" />
+            <el-progress :percentage="Math.round(parseFloat(statistics.progressRate || 0))" :stroke-width="4" color="var(--color-success)" class="stat-bar" />
           </div>
         </el-col>
-        <el-col :span="8">
+        <el-col :xs="24" :sm="24" :md="8">
           <div class="stat-card" v-tilt>
-            <div class="stat-icon" style="background: #F56C6C;">❌</div>
+            <div class="stat-icon" style="background: var(--color-danger);">❌</div>
             <div class="stat-info">
               <div class="stat-value">{{ statistics.wrongCount || 0 }}</div>
               <div class="stat-label">错题数</div>
@@ -81,7 +81,7 @@
             <el-progress
               :percentage="statistics.totalQuestions ? Math.round((statistics.wrongCount || 0) / statistics.totalQuestions * 100) : 0"
               :stroke-width="4"
-              color="#F56C6C"
+              color="var(--color-danger)"
               class="stat-bar"
             />
           </div>
@@ -90,7 +90,7 @@
     </div>
     
     <el-row :gutter="20">
-      <el-col :span="16">
+      <el-col :xs="24" :sm="24" :md="16">
         <div class="section">
           <div class="section-header">
             <h2>📚 全部分类</h2>
@@ -114,7 +114,7 @@
         </div>
       </el-col>
       
-      <el-col :span="8">
+      <el-col :xs="24" :sm="24" :md="8">
         <div class="section">
           <div class="section-header">
             <h2>🔥 热门题目</h2>
@@ -148,18 +148,23 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
+import { useQuestionHelpers } from '@/composables/useQuestionHelpers'
 import { categoryApi, questionApi, progressApi, statisticsApi } from '@/api'
 
 const router = useRouter()
 const userStore = useUserStore()
+const { getTypeText, getTypeTag, getDifficultyText } = useQuestionHelpers()
 
 const categories = ref([])
 const hotQuestions = ref([])
 const statistics = ref({})
 const streakDays = ref(0)
+const loading = ref(true)
 
 const loadData = async () => {
+  loading.value = true
   try {
     const [categoriesRes, hotRes, statsRes, totalRes, streakRes] = await Promise.all([
       categoryApi.getAll(),
@@ -176,6 +181,9 @@ const loadData = async () => {
     streakDays.value = streakRes.data?.currentStreak || 0
   } catch (error) {
     console.error('加载数据失败', error)
+    ElMessage.error('加载数据失败，请稍后重试')
+  } finally {
+    loading.value = false
   }
 }
 
@@ -185,27 +193,6 @@ const getCategoryIcon = (name) => {
     '算法': '🧮', '网络': '🌍', '操作系统': '💻', '系统设计': '🏗️'
   }
   return icons[name] || '📖'
-}
-
-const getDifficultyText = (difficulty) => {
-  const texts = { EASY: '简单', MEDIUM: '中等', HARD: '困难' }
-  return texts[difficulty] || difficulty
-}
-
-const getTypeText = (type) => {
-  const texts = {
-    SINGLE_CHOICE: '单选', MULTIPLE_CHOICE: '多选', TRUE_FALSE: '判断',
-    FILL_BLANK: '填空', SHORT_ANSWER: '简答', CODING: '编程', SCENARIO: '情景'
-  }
-  return texts[type] || type
-}
-
-const getTypeTag = (type) => {
-  const tags = {
-    SINGLE_CHOICE: 'primary', MULTIPLE_CHOICE: 'success', TRUE_FALSE: 'warning',
-    FILL_BLANK: 'info', SHORT_ANSWER: 'info', CODING: 'danger', SCENARIO: 'danger'
-  }
-  return tags[type] || 'info'
 }
 
 const goToQuestions = (categoryId) => {
@@ -227,16 +214,18 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
 }
 
 .welcome-text h1 {
   font-size: 26px;
-  color: #303133;
+  color: var(--color-text-primary);
   margin-bottom: 6px;
 }
 
 .welcome-subtitle {
-  color: #909399;
+  color: var(--color-text-secondary);
   font-size: 15px;
   margin: 0;
 }
@@ -245,10 +234,10 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 24px;
-  background: #fff;
+  background: var(--color-surface);
   padding: 16px 28px;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
 }
 
 .welcome-stat-item {
@@ -259,24 +248,24 @@ onMounted(() => {
   display: block;
   font-size: 22px;
   font-weight: 700;
-  color: #303133;
+  color: var(--color-text-primary);
   line-height: 1.2;
 }
 
 .welcome-stat-label {
-  font-size: 12px;
-  color: #909399;
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
   margin-top: 2px;
 }
 
 .welcome-divider {
   width: 1px;
   height: 36px;
-  background: #e4e7ed;
+  background: var(--color-border);
 }
 
 .welcome-stat-streak .welcome-stat-value {
-  color: #E6A23C;
+  color: var(--color-warning);
 }
 
 .quick-actions {
@@ -288,9 +277,9 @@ onMounted(() => {
   align-items: center;
   gap: 16px;
   padding: 20px 24px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: var(--transition-slow);
 }
 
 .action-card:hover {
@@ -298,24 +287,24 @@ onMounted(() => {
 }
 
 .action-primary {
-  background: linear-gradient(135deg, #409EFF, #337ecc);
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(64, 158, 255, 0.3);
+  background: var(--gradient-primary);
+  color: var(--color-text-on-primary);
+  box-shadow: 0 4px 16px rgba(91, 118, 254, 0.3);
 }
 
 .action-primary:hover {
-  box-shadow: 0 6px 24px rgba(64, 158, 255, 0.4);
+  box-shadow: 0 6px 24px rgba(91, 118, 254, 0.4);
 }
 
 .action-secondary {
-  background: #f5f7fa;
-  color: #303133;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .action-secondary:hover {
-  background: #ecf5ff;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  background: var(--el-color-primary-light-9);
+  box-shadow: var(--shadow-lg);
 }
 
 .action-icon {
@@ -330,7 +319,7 @@ onMounted(() => {
 }
 
 .action-desc {
-  font-size: 13px;
+  font-size: var(--font-sm);
   opacity: 0.8;
 }
 
@@ -339,11 +328,12 @@ onMounted(() => {
 }
 
 .stat-card {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   padding: 18px 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
   position: relative;
+  margin-bottom: var(--spacing-sm);
 }
 
 .stat-icon {
@@ -360,12 +350,12 @@ onMounted(() => {
 .stat-value {
   font-size: 22px;
   font-weight: 700;
-  color: #303133;
+  color: var(--color-text-primary);
 }
 
 .stat-label {
-  font-size: 13px;
-  color: #909399;
+  font-size: var(--font-sm);
+  color: var(--color-text-secondary);
   margin-top: 2px;
 }
 
@@ -374,10 +364,10 @@ onMounted(() => {
 }
 
 .section {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   padding: 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
   margin-bottom: 20px;
 }
 
@@ -389,30 +379,30 @@ onMounted(() => {
 }
 
 .section-header h2 {
-  font-size: 18px;
-  color: #303133;
+  font-size: var(--font-lg);
+  color: var(--color-text-primary);
   margin: 0;
 }
 
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 14px;
 }
 
 .category-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-md);
   padding: 18px 16px;
   text-align: center;
-  color: #fff;
+  color: var(--color-text-on-primary);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: var(--transition-slow);
 }
 
 .category-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 24px rgba(91, 118, 254, 0.4);
 }
 
 .category-icon {
@@ -421,13 +411,13 @@ onMounted(() => {
 }
 
 .category-name {
-  font-size: 15px;
+  font-size: var(--font-md);
   font-weight: 600;
   margin-bottom: 6px;
 }
 
 .category-count {
-  font-size: 13px;
+  font-size: var(--font-sm);
   opacity: 0.85;
 }
 
@@ -439,14 +429,14 @@ onMounted(() => {
 
 .hot-question-item {
   padding: 14px 16px;
-  background: #f5f7fa;
-  border-radius: 8px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: var(--transition-slow);
 }
 
 .hot-question-item:hover {
-  background: #ecf5ff;
+  background: var(--el-color-primary-light-9);
   transform: translateX(4px);
 }
 
@@ -457,8 +447,8 @@ onMounted(() => {
 }
 
 .question-title {
-  font-size: 14px;
-  color: #303133;
+  font-size: var(--font-base);
+  color: var(--color-text-primary);
   margin-bottom: 6px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -472,13 +462,35 @@ onMounted(() => {
 }
 
 .hot-category {
-  font-size: 12px;
-  color: #909399;
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
 }
 
 .empty-text {
   text-align: center;
-  color: #909399;
+  color: var(--color-text-secondary);
   padding: 40px;
+}
+
+@media (max-width: 768px) {
+  .welcome-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .welcome-stats {
+    width: 100%;
+    justify-content: space-between;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .welcome-stat-value {
+    font-size: 18px;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>

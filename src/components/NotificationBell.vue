@@ -176,12 +176,12 @@ onUnmounted(() => {
 .bell-wrapper {
   position: relative;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: background 0.2s;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--spacing-xs);
+  transition: background var(--transition-base);
 }
 .bell-wrapper:hover {
-  background: #f5f7fa;
+  background: var(--color-bg-secondary);
 }
 .bell-icon {
   font-size: 20px;
@@ -195,13 +195,13 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 4px 12px;
-  border-bottom: 1px solid #eee;
+  padding: 0 var(--spacing-xs) var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
 }
 .dropdown-title {
-  font-size: 15px;
+  font-size: var(--font-md);
   font-weight: 600;
-  color: #303133;
+  color: var(--color-text-primary);
 }
 .dropdown-body {
   max-height: 360px;
@@ -213,20 +213,20 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 12px 8px;
+  padding: var(--spacing-md) var(--spacing-sm);
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background var(--transition-base);
   position: relative;
 }
 .notification-item:hover {
-  background: #f5f7fa;
+  background: var(--color-bg-secondary);
 }
 .notification-item.unread {
-  background: #f0f7ff;
+  background: var(--el-color-primary-light-9);
 }
 .notification-item.unread:hover {
-  background: #e6f0ff;
+  background: var(--el-color-primary-light-8);
 }
 .notif-icon {
   font-size: 18px;
@@ -241,38 +241,38 @@ onUnmounted(() => {
   gap: 4px;
 }
 .notif-summary {
-  font-size: 13px;
-  color: #303133;
+  font-size: var(--font-sm);
+  color: var(--color-text-primary);
   line-height: 1.4;
   word-break: break-word;
 }
 .notif-time {
-  font-size: 12px;
-  color: #909399;
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
 }
 .unread-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #409EFF;
+  background: var(--color-interactive);
   flex-shrink: 0;
   margin-top: 6px;
 }
 .dropdown-footer {
-  border-top: 1px solid #eee;
-  padding-top: 8px;
-  margin: 4px -4px 0;
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-sm);
+  margin: var(--spacing-xs) -4px 0;
   text-align: center;
 }
 .view-all {
-  font-size: 13px;
-  color: #409EFF;
+  font-size: var(--font-sm);
+  color: var(--color-interactive);
   text-decoration: none;
   display: block;
   padding: 6px;
-  border-radius: 4px;
+  border-radius: var(--spacing-xs);
 }
 .view-all:hover {
-  background: #ecf5ff;
+  background: var(--el-color-primary-light-9);
 }
 </style>

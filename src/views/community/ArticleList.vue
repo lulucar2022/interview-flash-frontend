@@ -306,7 +306,7 @@ onMounted(() => {
 }
 
 .sidebar-card {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 0 0 1px var(--color-ring);
@@ -317,7 +317,7 @@ onMounted(() => {
   font-size: 16px;
   font-weight: 600;
   margin: 0 0 12px 0;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .topic-list {
@@ -331,18 +331,18 @@ onMounted(() => {
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
-  color: #666;
-  transition: all 0.2s;
+  color: var(--color-text-secondary);
+  transition: var(--transition-base);
 }
 
 .topic-item:hover {
-  background: #ecf5ff;
-  color: #409EFF;
+  background: var(--el-color-primary-light-9);
+  color: var(--color-interactive);
 }
 
 .topic-item.active {
-  background: #ecf5ff;
-  color: #409EFF;
+  background: var(--el-color-primary-light-9);
+  color: var(--color-interactive);
   font-weight: 500;
 }
 
@@ -367,7 +367,7 @@ onMounted(() => {
 .tabs {
   display: flex;
   gap: 4px;
-  background: #f5f5f5;
+  background: var(--color-bg-secondary);
   border-radius: 8px;
   padding: 2px;
 }
@@ -377,17 +377,17 @@ onMounted(() => {
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
-  color: #666;
-  transition: all 0.2s;
+  color: var(--color-text-secondary);
+  transition: var(--transition-base);
 }
 
 .tab:hover {
-  color: #409EFF;
+  color: var(--color-interactive);
 }
 
 .tab.active {
-  background: #fff;
-  color: #409EFF;
+  background: var(--color-surface);
+  color: var(--color-interactive);
   font-weight: 500;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
@@ -402,13 +402,13 @@ onMounted(() => {
 }
 
 .article-card:hover .article-title {
-  color: #409EFF;
+  color: var(--color-interactive);
 }
 
 .article-title {
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
   margin: 0 0 12px 0;
   transition: color 0.2s;
 }
@@ -418,23 +418,23 @@ onMounted(() => {
   align-items: center;
   gap: 16px;
   font-size: 13px;
-  color: #999;
+  color: var(--color-text-secondary);
   flex-wrap: wrap;
 }
 
 .author {
-  color: #409EFF;
+  color: var(--color-interactive);
   font-weight: 500;
   text-decoration: none;
 }
 
 .author:hover {
-  color: #66b1ff;
+  color: var(--el-color-primary-light-3);
 }
 
 .topic-tag {
-  background: #ecf5ff;
-  color: #409EFF;
+  background: var(--el-color-primary-light-9);
+  color: var(--color-interactive);
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 12px;

@@ -292,7 +292,7 @@ onMounted(async () => {
 .create-card {
   max-width: 800px;
   margin: 0 auto;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 8px;
   padding: 32px;
   box-shadow: 0 0 0 1px var(--color-ring);

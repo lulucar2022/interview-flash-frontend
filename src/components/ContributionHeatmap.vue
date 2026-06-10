@@ -224,7 +224,7 @@ const tipStyle = computed(() => {
 .month-label {
   position: absolute;
   font-size: 11px;
-  color: #909399;
+  color: var(--color-text-secondary);
   white-space: nowrap;
 }
 
@@ -244,7 +244,7 @@ const tipStyle = computed(() => {
   height: 16px;
   line-height: 16px;
   font-size: 11px;
-  color: #909399;
+  color: var(--color-text-secondary);
   text-align: right;
   padding-right: 6px;
 }
@@ -259,7 +259,7 @@ const tipStyle = computed(() => {
   height: 13px;
   border-radius: 3px;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: var(--transition-fast);
 }
 
 .cell:hover {
@@ -283,7 +283,7 @@ const tipStyle = computed(() => {
   align-items: center;
   gap: 3px;
   font-size: 11px;
-  color: #909399;
+  color: var(--color-text-secondary);
 }
 
 .legend-cell {
@@ -296,13 +296,13 @@ const tipStyle = computed(() => {
   position: fixed;
   z-index: 9999;
   pointer-events: none;
-  background: #303133;
-  color: #fff;
+  background: var(--color-text-primary);
+  color: var(--color-surface);
   font-size: 12px;
   padding: 8px 12px;
   border-radius: 6px;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   line-height: 1.6;
 }
 
