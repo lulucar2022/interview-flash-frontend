@@ -32,7 +32,11 @@
           :class="{ unread: !item.isRead }"
           @click="handleClick(item)"
         >
-          <span class="notif-icon">{{ typeIcon(item.type) }}</span>
+          <div class="notif-avatar-wrap">
+            <img v-if="item.fromUserAvatar" :src="item.fromUserAvatar" class="notif-avatar" />
+            <span v-else class="notif-avatar-placeholder">{{ typeIcon(item.type) }}</span>
+            <span class="notif-type-badge" :class="item.type">{{ typeBadgeIcon(item.type) }}</span>
+          </div>
           <div class="notif-content">
             <span class="notif-summary">{{ item.summary }}</span>
             <span class="notif-time">{{ timeAgo(item.createdAt) }}</span>
@@ -67,6 +71,13 @@ const typeIcon = (type) => {
   if (type === 'comment') return '💬'
   if (type === 'follow') return '👤'
   return '📢'
+}
+
+const typeBadgeIcon = (type) => {
+  if (type === 'like') return '👍'
+  if (type === 'comment') return '💬'
+  if (type === 'follow') return '➕'
+  return '🔔'
 }
 
 const timeAgo = (dateStr) => {
@@ -196,7 +207,6 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--spacing-xs) var(--spacing-md);
-  border-bottom: 1px solid var(--color-border);
 }
 .dropdown-title {
   font-size: var(--font-md);
@@ -233,6 +243,40 @@ onUnmounted(() => {
   flex-shrink: 0;
   margin-top: 2px;
 }
+.notif-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.notif-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.notif-avatar-placeholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--el-color-primary-light-9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.notif-type-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  font-size: 10px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 1px var(--color-border);
+}
 .notif-content {
   flex: 1;
   min-width: 0;
@@ -259,7 +303,6 @@ onUnmounted(() => {
   margin-top: 6px;
 }
 .dropdown-footer {
-  border-top: 1px solid var(--color-border);
   padding-top: var(--spacing-sm);
   margin: var(--spacing-xs) -4px 0;
   text-align: center;
