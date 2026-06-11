@@ -18,7 +18,7 @@
             <span>创建于 {{ formatDate(series.createdAt) }}</span>
           </div>
           <div class="series-actions" v-if="isOwner">
-            <el-button size="small" @click="showEditDialog = true">编辑</el-button>
+            <el-button size="small" @click="openEditDialog">编辑</el-button>
             <el-button size="small" type="danger" @click="handleDelete">删除</el-button>
           </div>
         </div>
@@ -56,18 +56,27 @@
       系列不存在或已删除
     </div>
 
-    <el-dialog v-model="showEditDialog" title="编辑系列" width="500px">
-      <el-form :model="editForm" label-position="top">
-        <el-form-item label="系列名称" required>
-          <el-input v-model="editForm.title" maxlength="100" show-word-limit />
+    <el-dialog v-model="showEditDialog" title="编辑系列" width="500px" :close-on-click-modal="false">
+      <div class="edit-dialog-gradient" :style="{ background: headerGradient }">
+        <span class="edit-dialog-icon">✏️</span>
+        <span>修改系列信息</span>
+      </div>
+      <el-form :model="editForm" label-position="top" style="margin-top: 20px">
+        <el-form-item label="系列名称">
+          <el-input v-model="editForm.title" placeholder="留空则保持原名称" maxlength="100" show-word-limit clearable />
         </el-form-item>
-        <el-form-item label="简介">
-          <el-input v-model="editForm.description" type="textarea" :rows="3" maxlength="500" />
+        <el-form-item>
+          <template #label>
+            <span>简介</span>
+            <span class="label-hint">（可选）</span>
+          </template>
+          <el-input v-model="editForm.description" type="textarea" :rows="4"
+            placeholder="输入系列简介，留空则清除" maxlength="500" show-word-limit />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showEditDialog = false">取消</el-button>
-        <el-button type="primary" :loading="updating" @click="handleUpdate">保存</el-button>
+        <el-button type="primary" :loading="updating" @click="handleUpdate">保存修改</el-button>
       </template>
     </el-dialog>
   </div>
@@ -126,16 +135,30 @@ const fetchDetail = async () => {
   }
 }
 
+const openEditDialog = () => {
+  editForm.value = {
+    title: series.value?.title || '',
+    description: series.value?.description || ''
+  }
+  showEditDialog.value = true
+}
+
 const handleUpdate = async () => {
-  if (!editForm.value.title.trim()) {
-    ElMessage.warning('请输入系列名称')
+  const title = editForm.value.title.trim()
+  const description = editForm.value.description.trim()
+
+  // 如果标题为空，保持原标题
+  const finalTitle = title || series.value?.title || ''
+  if (!finalTitle) {
+    ElMessage.warning('系列名称不能为空')
     return
   }
+
   updating.value = true
   try {
     await seriesApi.update(route.params.id, {
-      title: editForm.value.title.trim(),
-      description: editForm.value.description.trim() || null,
+      title: finalTitle,
+      description: description || null,
     })
     ElMessage.success('保存成功')
     showEditDialog.value = false
@@ -330,5 +353,27 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   margin-top: 24px;
+}
+
+.edit-dialog-gradient {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-on-primary);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.edit-dialog-icon {
+  font-size: 18px;
+}
+
+.label-hint {
+  color: var(--color-text-placeholder);
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 4px;
 }
 </style>
