@@ -15,7 +15,9 @@
     <el-row :gutter="20" v-loading="loading">
       <el-col v-for="s in series" :key="s.id" :span="8" :xs="24" :sm="12" :md="8" style="margin-bottom: 20px">
         <div class="series-card" v-tilt @click="$router.push(`/series/${s.id}`)">
-          <div class="series-cover" :style="{ background: coverGradient(s.id) }">
+          <div class="series-cover" :class="{ 'series-cover--has-image': s.coverImage }"
+               :style="s.coverImage ? { backgroundImage: `url(${s.coverImage})` } : {}">
+            <el-icon v-if="!s.coverImage" class="series-cover-icon"><Collection /></el-icon>
             <div class="series-article-count">{{ s.articleCount }} 篇文章</div>
           </div>
           <div class="series-body">
@@ -31,18 +33,27 @@
 
     <el-empty v-if="!loading && series.length === 0" description="暂无系列" />
 
-    <el-dialog v-model="showCreateDialog" title="新建系列" width="500px">
-      <el-form :model="createForm" label-position="top">
-        <el-form-item label="系列名称" required>
-          <el-input v-model="createForm.title" placeholder="请输入系列名称" maxlength="100" show-word-limit />
+    <el-dialog v-model="showCreateDialog" title="新建系列" width="500px" :close-on-click-modal="false">
+      <div class="create-dialog-gradient" :style="{ background: createDialogGradient }">
+        <span class="create-dialog-icon">✨</span>
+        <span>创建新的文章系列</span>
+      </div>
+      <el-form :model="createForm" label-position="top" style="margin-top: 20px">
+        <el-form-item label="系列名称">
+          <el-input v-model="createForm.title" placeholder="请输入系列名称" maxlength="100" show-word-limit clearable />
         </el-form-item>
-        <el-form-item label="简介">
-          <el-input v-model="createForm.description" type="textarea" :rows="3" placeholder="系列简介（可选）" maxlength="500" />
+        <el-form-item>
+          <template #label>
+            <span>简介</span>
+            <span class="label-hint">（可选）</span>
+          </template>
+          <el-input v-model="createForm.description" type="textarea" :rows="4"
+            placeholder="输入系列简介，描述这个系列的主题和内容" maxlength="500" show-word-limit />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showCreateDialog = false">取消</el-button>
-        <el-button type="primary" :loading="creating" @click="handleCreate">创建</el-button>
+        <el-button type="primary" :loading="creating" @click="handleCreate">创建系列</el-button>
       </template>
     </el-dialog>
   </div>
@@ -53,8 +64,9 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { seriesApi } from '@/api'
-import { getGradientById } from './constants'
+import { CARD_GRADIENTS } from './constants'
 import { ElMessage } from 'element-plus'
+import { Collection } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -66,7 +78,7 @@ const showCreateDialog = ref(false)
 const creating = ref(false)
 const createForm = ref({ title: '', description: '' })
 
-const coverGradient = (id) => getGradientById(id)
+const createDialogGradient = CARD_GRADIENTS[0]
 
 const fetchSeries = async () => {
   loading.value = true
@@ -152,6 +164,21 @@ onMounted(() => {
   justify-content: flex-end;
   padding: 12px;
   position: relative;
+  background: var(--color-bg-secondary);
+}
+
+.series-cover--has-image {
+  background-size: cover;
+  background-position: center;
+}
+
+.series-cover-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  font-size: 32px;
+  color: var(--color-border);
 }
 
 .series-article-count {
@@ -189,5 +216,27 @@ onMounted(() => {
 .series-meta {
   font-size: 12px;
   color: var(--color-text-placeholder);
+}
+
+.create-dialog-gradient {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-on-primary);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.create-dialog-icon {
+  font-size: 18px;
+}
+
+.label-hint {
+  color: var(--color-text-placeholder);
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 4px;
 }
 </style>
