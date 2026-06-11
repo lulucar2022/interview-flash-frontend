@@ -62,31 +62,40 @@
     <el-dialog
       v-model="showRegisterDialog"
       title="用户注册"
-      width="450px"
+      width="480px"
       :close-on-click-modal="false"
     >
+      <div class="register-dialog-gradient">
+        <span class="register-dialog-icon">👤</span>
+        <span>创建新账号</span>
+      </div>
       <el-form
         ref="registerFormRef"
         :model="registerForm"
         :rules="registerRules"
-        label-width="80px"
+        label-position="top"
+        style="margin-top: 20px"
       >
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="registerForm.username" placeholder="3-50个字符" />
+          <el-input v-model="registerForm.username" placeholder="3-50个字符" size="large" :prefix-icon="User" clearable />
         </el-form-item>
-        <el-form-item label="昵称" prop="nickname">
-          <el-input v-model="registerForm.nickname" placeholder="选填" />
+        <el-form-item prop="nickname">
+          <template #label>
+            <span>昵称</span>
+            <span class="label-hint">（可选）</span>
+          </template>
+          <el-input v-model="registerForm.nickname" placeholder="给自己取个名字" size="large" :prefix-icon="UserFilled" clearable />
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model="registerForm.email" placeholder="请输入邮箱" />
+          <el-input v-model="registerForm.email" placeholder="请输入邮箱地址" size="large" :prefix-icon="Message" clearable />
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="registerForm.password" type="password" placeholder="6-100个字符" show-password />
+          <el-input v-model="registerForm.password" type="password" placeholder="6-100个字符" size="large" :prefix-icon="Lock" show-password />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showRegisterDialog = false">取消</el-button>
-        <el-button type="primary" :loading="registerLoading" @click="handleRegister">注册</el-button>
+        <el-button type="primary" :loading="registerLoading" @click="handleRegister" class="register-submit-btn">注册</el-button>
       </template>
     </el-dialog>
   </div>
@@ -97,6 +106,7 @@ import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
+import { User, UserFilled, Message, Lock } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -262,5 +272,32 @@ const handleRegister = async () => {
   margin-top: var(--spacing-lg);
   color: var(--color-text-secondary);
   font-size: 14px;
+}
+
+.register-dialog-gradient {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-primary);
+  color: var(--color-text-on-primary);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.register-dialog-icon {
+  font-size: 18px;
+}
+
+.label-hint {
+  color: var(--color-text-placeholder);
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.register-submit-btn {
+  min-width: 100px;
 }
 </style>
