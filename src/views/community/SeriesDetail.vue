@@ -227,8 +227,42 @@ onMounted(() => {
 }
 
 .series-actions .el-button {
-  color: var(--color-surface);
-  border-color: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--color-text-on-primary);
+  border-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.series-actions .el-button:hover {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-on-primary);
+}
+
+.series-actions .el-button:active,
+.series-actions .el-button:focus {
+  background: rgba(255, 255, 255, 0.45);
+  border-color: #ffffff;
+  color: var(--color-text-on-primary);
+}
+
+.series-actions .el-button--danger {
+  background: rgba(245, 108, 108, 0.25);
+  border-color: rgba(245, 108, 108, 0.6);
+  color: var(--color-text-on-primary);
+}
+
+.series-actions .el-button--danger:hover {
+  background: rgba(245, 108, 108, 0.45);
+  border-color: rgba(245, 108, 108, 0.9);
+  color: var(--color-text-on-primary);
+}
+
+.series-actions .el-button--danger:active,
+.series-actions .el-button--danger:focus {
+  background: rgba(245, 108, 108, 0.6);
+  border-color: var(--color-danger);
+  color: var(--color-text-on-primary);
 }
 
 .article-list {
