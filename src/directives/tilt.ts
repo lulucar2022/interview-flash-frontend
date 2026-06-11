@@ -1,5 +1,14 @@
+import type { DirectiveBinding } from 'vue'
+
+interface TiltOptions {
+  maxTilt?: number
+  scale?: number
+  perspective?: number
+  speed?: number
+}
+
 export default {
-  mounted(el, binding) {
+  mounted(el: HTMLElement, binding: DirectiveBinding<TiltOptions>) {
     const opts = binding.value || {}
     const maxTilt = opts.maxTilt ?? 4
     const scale = opts.scale ?? 1.02
@@ -16,7 +25,7 @@ export default {
         el.style.transition = `transform ${speed}ms ease-out, box-shadow ${speed}ms ease-out`
       },
 
-      mousemove(e) {
+      mousemove(e: MouseEvent) {
         const rect = el.getBoundingClientRect()
         const x = e.clientX - rect.left
         const y = e.clientY - rect.top
@@ -43,15 +52,18 @@ export default {
     el.addEventListener('mouseenter', handlers.mouseenter)
     el.addEventListener('mousemove', handlers.mousemove)
     el.addEventListener('mouseleave', handlers.mouseleave)
-    el._tiltHandlers = handlers
+    ;(el as unknown as Record<string, unknown>)._tiltHandlers = handlers
   },
 
-  unmounted(el) {
-    if (el._tiltHandlers) {
-      el.removeEventListener('mouseenter', el._tiltHandlers.mouseenter)
-      el.removeEventListener('mousemove', el._tiltHandlers.mousemove)
-      el.removeEventListener('mouseleave', el._tiltHandlers.mouseleave)
-      delete el._tiltHandlers
+  unmounted(el: HTMLElement) {
+    const handlers = (el as unknown as Record<string, unknown>)._tiltHandlers as
+      | { mouseenter: () => void; mousemove: (e: MouseEvent) => void; mouseleave: () => void }
+      | undefined
+    if (handlers) {
+      el.removeEventListener('mouseenter', handlers.mouseenter)
+      el.removeEventListener('mousemove', handlers.mousemove)
+      el.removeEventListener('mouseleave', handlers.mouseleave)
+      delete (el as unknown as Record<string, unknown>)._tiltHandlers
     }
     el.style.transform = ''
     el.style.boxShadow = ''

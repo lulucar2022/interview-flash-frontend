@@ -1,28 +1,35 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
+import type { InternalAxiosRequestConfig } from 'axios'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import router from '@/router'
 
+export interface ApiResponse<T = unknown> {
+  code: number
+  msg: string
+  data: T
+}
+
 const request = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL as string | undefined,
   timeout: 30000
 })
 
 request.interceptors.request.use(
-  config => {
+  (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
     return config
   },
-  error => {
+  (error: Error) => {
     return Promise.reject(error)
   }
 )
 
 request.interceptors.response.use(
-  response => {
+  (response) => {
     const res = response.data
     // 文件下载类请求（blob）直接返回，不做 JSON 解析
     if (res instanceof Blob) {
@@ -35,10 +42,11 @@ request.interceptors.response.use(
     }
     return res
   },
-  error => {
-    console.error('[HTTP Error]', { status: error.response?.status, data: error.response?.data })
-    if (error.response) {
-      const { status, data } = error.response
+  (error: Error) => {
+    const axiosError = error as AxiosError<ApiResponse>
+    console.error('[HTTP Error]', { status: axiosError.response?.status, data: axiosError.response?.data })
+    if (axiosError.response) {
+      const { status, data } = axiosError.response
       switch (status) {
         case 401:
           ElMessageBox.confirm('登录已过期，请重新登录', '提示', {
@@ -52,16 +60,16 @@ request.interceptors.response.use(
           })
           break
         case 403:
-          ElMessage.error(data.msg || '没有权限')
+          ElMessage.error(data?.msg || '没有权限')
           break
         case 404:
-          ElMessage.error(data.msg || '资源不存在')
+          ElMessage.error(data?.msg || '资源不存在')
           break
         case 500:
-          ElMessage.error(data.msg || '服务器错误')
+          ElMessage.error(data?.msg || '服务器错误')
           break
         default:
-          ElMessage.error(data.msg || '请求失败')
+          ElMessage.error(data?.msg || '请求失败')
       }
     } else {
       ElMessage.error('网络错误，请检查网络连接')
