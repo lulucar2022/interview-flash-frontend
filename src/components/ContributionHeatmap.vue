@@ -1,5 +1,6 @@
 <template>
-  <div class="contribution-heatmap" :style="{ width: totalWidth + 'px' }">
+  <div class="contribution-heatmap">
+  <div class="heatmap-scroll" :style="{ minWidth: totalWidth + 'px' }">
     <!-- Month labels -->
     <div class="month-row">
       <span class="spacer" :style="{ width: labelWidth + 'px' }" />
@@ -50,6 +51,7 @@
         <span>多</span>
       </div>
     </div>
+  </div>
 
     <!-- Tooltip (fixed positioning escapes overflow) -->
     <div v-show="tip.visible" class="heatmap-tooltip" :style="tipStyle">
@@ -204,7 +206,13 @@ const tipStyle = computed(() => {
   --cell-size: 13px;
   --gap: 3px;
   --step: calc(var(--cell-size) + var(--gap));
+  width: 100%;
+  overflow-x: auto;
   margin: 0 auto;
+}
+
+.heatmap-scroll {
+  width: fit-content;
 }
 
 .month-row {
