@@ -8,7 +8,7 @@
       <div class="filters">
         <div class="filter-item">
           <label class="filter-label">分类</label>
-          <el-select v-model="selectedCategory" placeholder="全部分类" clearable @change="handleFilterChange">
+          <el-select v-model="selectedCategory" placeholder="全部分类" clearable @change="handleFilterChange" style="min-width: 150px">
             <el-option
               v-for="cat in categories"
               :key="cat.id"
@@ -19,7 +19,7 @@
         </div>
         <div class="filter-item">
           <label class="filter-label">难度</label>
-          <el-select v-model="selectedDifficulty" placeholder="全部难度" clearable @change="handleFilterChange">
+          <el-select v-model="selectedDifficulty" placeholder="全部难度" clearable @change="handleFilterChange" style="min-width: 150px">
             <el-option label="简单" value="EASY" />
             <el-option label="中等" value="MEDIUM" />
             <el-option label="困难" value="HARD" />
