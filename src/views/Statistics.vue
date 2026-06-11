@@ -172,9 +172,9 @@ const trendOption = computed(() => {
       data: dates.map(d => d.count > 0 ? Math.round(d.correct / d.count * 100) : null),
       smooth: true,
       connectNulls: false,
-      lineStyle: { color: '#5b76fe', width: 2 },
-      areaStyle: { color: 'rgba(91,118,254,0.1)' },
-      itemStyle: { color: '#5b76fe' }
+      lineStyle: { color: '#99c1de', width: 2 },
+      areaStyle: { color: 'rgba(153,193,222,0.1)' },
+      itemStyle: { color: '#99c1de' }
     }]
   }
 })
@@ -225,9 +225,9 @@ const articleViewsOption = computed(() => {
       name: '浏览量', type: 'line',
       data: data.map(d => d.count),
       smooth: true,
-      lineStyle: { color: '#5b76fe', width: 2 },
-      areaStyle: { color: 'rgba(91,118,254,0.1)' },
-      itemStyle: { color: '#5b76fe' }
+      lineStyle: { color: '#99c1de', width: 2 },
+      areaStyle: { color: 'rgba(153,193,222,0.1)' },
+      itemStyle: { color: '#99c1de' }
     }]
   }
 })

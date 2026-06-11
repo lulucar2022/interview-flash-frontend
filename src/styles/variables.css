@@ -1,4 +1,16 @@
 :root {
+  /* ── New Pastel Palette ── */
+  --powder-petal: #eddcd2;
+  --linen: #fff1e6;
+  --soft-blush: #fde2e4;
+  --petal-frost: #fad2e1;
+  --light-cyan: #c5dedd;
+  --mint-cream: #dbe7e4;
+  --parchment: #f0efeb;
+  --alice-blue: #d6e2e9;
+  --pale-sky: #bcd4e6;
+  --powder-blue: #99c1de;
+
   /* Near Black - Primary Text */
   --color-text-primary: #1c1c1e;
   
@@ -6,38 +18,38 @@
   --color-surface: #ffffff;
   --color-text-on-primary: #ffffff;
   
-  /* Blue 450 - Primary Interactive */
-  --color-interactive: #5b76fe;
-  --color-interactive-hover: #2a41b6;
+  /* Powder Blue - Primary Interactive */
+  --color-interactive: var(--powder-blue);
+  --color-interactive-hover: #7aa8c7;
   
-  /* Success Green */
-  --color-success: #00b473;
+  /* Success - Light Cyan deepened */
+  --color-success: #7eb3a8;
   
   /* Pastel Accents */
-  --color-coral-light: #ffc6c6;
+  --color-coral-light: var(--soft-blush);
   --color-coral-dark: #600000;
-  --color-teal-light: #c3faf5;
+  --color-teal-light: var(--light-cyan);
   --color-teal-dark: #187574;
-  --color-orange-light: #ffe6cd;
+  --color-orange-light: var(--powder-petal);
   --color-yellow-dark: #746019;
   --color-moss-dark: #4a5d23;
-  --color-pink: #fde0f0;
-  --color-red-light: #fbd4d4;
+  --color-pink: var(--petal-frost);
+  --color-red-light: var(--soft-blush);
   
   /* Neutral */
   --color-text-secondary: #555a6a;
   --color-placeholder: #a5a8b5;
-  --color-border: #c7cad5;
-  --color-ring: rgb(224, 226, 232);
+  --color-border: var(--alice-blue);
+  --color-ring: var(--alice-blue);
   
   /* Semantic Colors */
-  --color-danger: #F56C6C;
-  --color-warning: #E6A23C;
-  --color-info: #909399;
+  --color-danger: #d4949a;
+  --color-warning: #c9a08a;
+  --color-info: var(--pale-sky);
 
   /* Background */
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f8f9fa;
+  --color-bg-primary: var(--linen);
+  --color-bg-secondary: var(--parchment);
 
   /* Shadow System */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -51,8 +63,8 @@
   --transition-slow: all 0.3s ease;
 
   /* Gradient */
-  --gradient-primary: linear-gradient(135deg, var(--color-interactive) 0%, #7a8fff 100%);
-  --gradient-accent: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-primary: linear-gradient(135deg, var(--powder-blue) 0%, var(--pale-sky) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--petal-frost) 0%, var(--pale-sky) 100%);
 
   /* Font Size System */
   --font-xs: 12px;
@@ -99,11 +111,11 @@ body {
 /* Override Element Plus Variables */
 :root {
   --el-color-primary: var(--color-interactive);
-  --el-color-primary-light-3: #7a8fff;
-  --el-color-primary-light-5: #9aa8ff;
-  --el-color-primary-light-7: #b9c1ff;
-  --el-color-primary-light-8: #c9cfff;
-  --el-color-primary-light-9: #d9deff;
+  --el-color-primary-light-3: #b5d4e8;
+  --el-color-primary-light-5: #cce0f0;
+  --el-color-primary-light-7: #dfebf5;
+  --el-color-primary-light-8: #e8f0f8;
+  --el-color-primary-light-9: #f0f5fa;
   --el-color-primary-dark-2: var(--color-interactive-hover);
   --el-color-success: var(--color-success);
   --el-color-warning: var(--color-warning);
@@ -118,7 +130,7 @@ body {
   --el-text-color-regular: var(--color-text-secondary);
   --el-text-color-placeholder: var(--color-placeholder);
   --el-border-color: var(--color-border);
-  --el-border-color-light: #e9eaef;
+  --el-border-color-light: var(--alice-blue);
   --el-fill-color-blank: var(--color-surface);
   --el-bg-color: var(--color-surface);
   --el-bg-color-page: var(--color-bg-secondary);
@@ -168,7 +180,7 @@ body {
 /* Input Styles */
 .el-input__wrapper {
   background: var(--color-surface);
-  border: 1px solid #e9eaef;
+  border: 1px solid var(--alice-blue);
   border-radius: var(--radius-sm);
   box-shadow: none !important;
   padding: 8px 16px;
@@ -184,7 +196,7 @@ body {
 }
 
 .el-textarea__inner {
-  border: 1px solid #e9eaef;
+  border: 1px solid var(--alice-blue);
   border-radius: var(--radius-sm);
 }
 
@@ -212,12 +224,12 @@ body {
 }
 
 .el-dialog__header {
-  border-bottom: 1px solid #e9eaef;
+  border-bottom: 1px solid var(--alice-blue);
   padding-bottom: var(--spacing-md);
 }
 
 .el-dialog__footer {
-  border-top: 1px solid #e9eaef;
+  border-top: 1px solid var(--alice-blue);
   padding-top: var(--spacing-md);
 }
 
@@ -301,7 +313,7 @@ body {
 
 /* Category Card */
 .category-card {
-  background: linear-gradient(135deg, var(--color-interactive) 0%, #7a8fff 100%);
+  background: var(--gradient-primary);
   border-radius: var(--radius-md);
   padding: var(--spacing-lg);
   text-align: center;
@@ -312,7 +324,7 @@ body {
 
 .category-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(91, 118, 254, 0.3);
+  box-shadow: 0 8px 24px rgba(153, 193, 222, 0.3);
 }
 
 /* Question Card */
@@ -392,7 +404,7 @@ body {
 
 /* Progress Bar */
 .el-progress-bar__outer {
-  background-color: #e9eaef;
+  background-color: var(--alice-blue);
 }
 
 .el-progress-bar__inner {

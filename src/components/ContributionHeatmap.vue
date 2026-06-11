@@ -274,11 +274,11 @@ const tipStyle = computed(() => {
   opacity: 0.8;
 }
 
-.l0 { background-color: #ebedf0; }
-.l1 { background-color: #dbeafe; }
-.l2 { background-color: #93c5fd; }
-.l3 { background-color: #3b82f6; }
-.l4 { background-color: #1d4ed8; }
+.l0 { background-color: #f0efeb; }
+.l1 { background-color: #dbe7e4; }
+.l2 { background-color: #c5dedd; }
+.l3 { background-color: #99c1de; }
+.l4 { background-color: #7aa8c7; }
 
 .legend-row {
   display: flex;

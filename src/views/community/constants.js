@@ -3,12 +3,12 @@
  */
 
 export const CARD_GRADIENTS = [
-  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-  'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+  'linear-gradient(135deg, #99c1de 0%, #bcd4e6 100%)',
+  'linear-gradient(135deg, #fde2e4 0%, #fad2e1 100%)',
+  'linear-gradient(135deg, #c5dedd 0%, #dbe7e4 100%)',
+  'linear-gradient(135deg, #eddcd2 0%, #fde2e4 100%)',
+  'linear-gradient(135deg, #fad2e1 0%, #bcd4e6 100%)',
+  'linear-gradient(135deg, #dbe7e4 0%, #d6e2e9 100%)',
 ]
 
 export const getGradientById = (id) => CARD_GRADIENTS[id % CARD_GRADIENTS.length]
