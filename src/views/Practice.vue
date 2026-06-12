@@ -424,7 +424,7 @@ const toggleShowAnswer = () => { showAnswer.value = !showAnswer.value }
 watch(currentQuestion, async (q) => {
   if (q) {
     try {
-      const res = await progressApi.getProgressByQuestion({ userId: userStore.user.id, questionId: q.id })
+      const res = await progressApi.getProgressByQuestion(q.id)
       isFavorite.value = res.data?.isFavorite || false
     } catch { isFavorite.value = false }
   }
