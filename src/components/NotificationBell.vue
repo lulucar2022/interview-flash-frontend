@@ -120,7 +120,9 @@ const handleClick = async (item) => {
       item.isRead = true
       unreadCount.value = Math.max(0, unreadCount.value - 1)
     } catch {
-      // ignore
+      // markRead 失败（可能是 SSE 临时 ID），刷新列表获取真实数据
+      fetchList()
+      fetchUnreadCount()
     }
   }
   if ((item.type === 'like' || item.type === 'comment') && item.targetId) {
