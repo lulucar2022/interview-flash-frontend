@@ -57,7 +57,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { notificationApi } from '@/api'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -149,6 +149,25 @@ const connectSSE = () => {
     try {
       const data = JSON.parse(e.data)
       unreadCount.value++
+      // 推入列表顶部
+      list.value.unshift({
+        id: Date.now(),
+        type: data.type,
+        summary: data.summary,
+        isRead: false,
+        fromUserId: data.fromUserId,
+        fromUserNickname: data.fromUserNickname,
+        fromUserAvatar: null,
+        targetId: data.targetId,
+        createdAt: data.createdAt,
+      })
+      // Toast 提示
+      ElNotification({
+        title: '新消息',
+        message: data.summary,
+        duration: 4000,
+        position: 'bottom-right',
+      })
     } catch {
       // ignore
     }

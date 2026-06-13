@@ -108,7 +108,16 @@ const fetchUnreadCount = async () => {
   }
 }
 
-const handleClick = (item) => {
+const handleClick = async (item) => {
+  if (!item.isRead) {
+    try {
+      await notificationApi.markRead(item.id)
+      item.isRead = true
+      unreadCount.value = Math.max(0, unreadCount.value - 1)
+    } catch {
+      // ignore
+    }
+  }
   if (item.type === 'like' || item.type === 'comment') {
     router.push(`/articles/${item.targetId}`)
   } else if (item.type === 'follow') {
