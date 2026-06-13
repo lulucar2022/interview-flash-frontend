@@ -84,7 +84,9 @@ const timeAgo = (dateStr) => {
   if (!dateStr) return ''
   const now = Date.now()
   const past = new Date(dateStr).getTime()
+  if (isNaN(past)) return dateStr.slice(0, 10)
   const diff = Math.floor((now - past) / 1000)
+  if (diff < 0) return '刚刚'
   if (diff < 60) return '刚刚'
   if (diff < 3600) return Math.floor(diff / 60) + '分钟前'
   if (diff < 86400) return Math.floor(diff / 3600) + '小时前'
@@ -114,6 +116,7 @@ const handleClick = async (item) => {
   if (!item.isRead) {
     try {
       await notificationApi.markRead(item.id)
+      item.isRead = true
       unreadCount.value = Math.max(0, unreadCount.value - 1)
     } catch {
       // ignore
