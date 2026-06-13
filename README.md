@@ -1,223 +1,142 @@
-# 面试刷题系统前端
+# Interview Flash — 面试刷题系统前端
 
-基于 Vue3 + Vite + Pinia + Vue Router + Element Plus + Axios 构建的面试刷题系统前端项目。
-
-## 设计风格
-
-参考 **Miro** 设计风格，简洁、现代化：
-
-- **主色调**: Near Black (`#1c1c1e`) + White (`#ffffff`)
-- **交互色**: Blue 450 (`#5b76fe`)
-- **成功色**: Success Green (`#00b473`)
-- **边框**: Ring shadow 风格 (`rgb(224,226,232) 0px 0px 0px 1px`)
-- **圆角**: 8px-24px 范围
-- **字体**: Noto Sans SC / PingFang SC
+基于 Vue 3 + TypeScript + Vite 5 构建的全栈面试刷题系统前端，包含题库练习、社区文章、实时通知、数据可视化等完整功能。
 
 ## 技术栈
 
 | 技术 | 版本 | 说明 |
 |------|------|------|
-| Vue | 3.4.x | 渐进式JavaScript框架 |
-| Vite | 5.2.x | 下一代前端构建工具 |
-| Pinia | 2.1.x | Vue状态管理 |
-| Vue Router | 4.3.x | Vue官方路由管理 |
-| Element Plus | 2.6.x | Vue3 UI组件库 |
-| Axios | 1.6.x | HTTP请求库 |
+| Vue | 3.4 | 渐进式 JavaScript 框架 |
+| TypeScript | 5.x | 类型安全 |
+| Vite | 5.2 | 下一代前端构建工具 |
+| Pinia | 2.1 | Vue 状态管理 |
+| Vue Router | 4.3 | 路由管理 + 守卫 |
+| Element Plus | 2.6 | Vue 3 UI 组件库 |
+| Axios | 1.6 | HTTP 请求 |
+| ECharts | 5.x | 数据可视化图表 |
+| md-editor-v3 | 3.x | Markdown 编辑器（文章撰写） |
+| @unhead/vue | SEO | 动态 OG 标签 |
+
+## 设计系统
+
+采用柔和粉蓝调色板（Pastel Powder-Blue），所有颜色通过 CSS 变量管理：
+
+```css
+/* 调色板 */
+--powder-petal: #eddcd2;   /* 暖米色 */
+--linen: #fff1e6;          /* 暖奶油 */
+--soft-blush: #fde2e4;     /* 柔粉 */
+--petal-frost: #fad2e1;    /* 玫瑰粉 */
+--light-cyan: #c5dedd;     /* 浅青绿 */
+--mint-cream: #dbe7e4;     /* 薄荷绿 */
+--parchment: #f0efeb;      /* 暖灰白 */
+--alice-blue: #d6e2e9;     /* 浅钢蓝 */
+--pale-sky: #bcd4e6;       /* 中浅蓝 */
+--powder-blue: #99c1de;    /* 蓝色（主交互色） */
+
+/* 语义令牌 */
+--color-interactive: var(--powder-blue);
+--color-bg-secondary: var(--parchment);
+--color-border: var(--alice-blue);
+```
+
+设计令牌定义在 `src/styles/variables.css`，全局覆盖 Element Plus 默认色。
 
 ## 项目结构
 
 ```
 src/
-├── api/                    # API接口模块化管理
-│   └── index.js           # 接口定义
-├── assets/                # 静态资源
-├── components/            # 公共组件
-│   └── Header.vue         # 顶部导航栏
-├── router/                # 路由配置
-│   └── index.js           # 路由守卫
-├── stores/                # Pinia状态管理
-│   ├── app.js             # 全局状态（Loading）
-│   ├── user.js            # 用户状态
-│   └── index.js           # Store入口
-├── utils/                 # 工具函数
-│   └── request.js         # Axios封装
-├── views/                 # 页面组件
-│   ├── Login.vue          # 登录页
-│   ├── Home.vue           # 首页
-│   ├── QuestionList.vue   # 题库列表
-│   ├── QuestionDetail.vue # 题目详情
-│   ├── Practice.vue       # 在线刷题
-│   ├── WrongQuestions.vue # 错题本
-│   └── Profile.vue        # 个人中心
-├── App.vue                # 根组件
-└── main.js                # 应用入口
+├── api/index.ts                    # API 接口统一管理
+├── components/                     # 公共组件
+│   ├── Header.vue                  #   顶部导航栏 + 通知铃铛
+│   ├── NotificationBell.vue        #   通知下拉面板（SSE 实时推送）
+│   ├── ContributionHeatmap.vue     #   GitHub 风格贡献热力图
+│   └── HeatmapCanvas.vue           #   热力图 Canvas 渲染
+├── composables/
+│   └── useQuestionHelpers.js       #   题型/难度共享逻辑
+├── directives/
+│   └── tilt.ts                     #   3D 倾斜效果指令
+├── router/index.ts                 #   路由配置 + 守卫
+├── stores/                         #   Pinia 状态管理
+│   ├── user.ts                     #     用户状态（token, 登录）
+│   └── app.ts                      #     全局状态（loading）
+├── styles/
+│   └── variables.css               #   设计令牌 + 全局样式
+├── utils/
+│   └── request.ts                  #   Axios 封装（JWT 拦截器）
+├── views/                          #   页面组件
+│   ├── Login.vue                   #     登录/注册
+│   ├── Home.vue                    #     首页（统计 + 分类 + 热门）
+│   ├── QuestionList.vue            #     题库列表（筛选 + 分页）
+│   ├── QuestionDetail.vue          #     题目详情 + 答题
+│   ├── Practice.vue                #     在线刷题（7 种题型）
+│   ├── Statistics.vue              #     数据统计（ECharts）
+│   ├── WrongQuestions.vue          #     错题本
+│   ├── Profile.vue                 #     个人中心
+│   ├── NotificationList.vue        #     通知列表
+│   └── community/                  #     社区模块
+│       ├── ArticleList.vue         #       文章列表
+│       ├── ArticleDetail.vue       #       文章详情 + 评论
+│       ├── ArticleCreate.vue       #       文章撰写（Markdown）
+│       ├── SeriesList.vue          #       系列列表
+│       ├── SeriesDetail.vue        #       系列详情
+│       ├── AuthorProfile.vue       #       作者主页
+│       ├── CommentItem.vue         #       评论组件（树形嵌套）
+│       └── constants.js            #       渐变色常量
+├── App.vue                         #   根组件
+└── main.ts                         #   应用入口
 ```
 
-## 页面说明
+## 页面功能
 
-### 1. 登录页 (Login)
-- 用户名密码登录
-- 表单校验（长度、非空）
-- 记住密码功能
-- 回车键快速登录
+### 登录/注册 (Login)
+- 用户名密码登录 + JWT 令牌
+- 新用户注册（用户名/邮箱/昵称/密码）
+- 记住密码 + 回车快速登录
 
-### 2. 首页 (Home)
-- 用户欢迎信息
-- 学习统计卡片（总题目、已掌握、错题数、掌握率）
-- 题库分类展示
-- 热门题目列表
-- 快捷操作入口
+### 首页 (Home)
+- 学习统计卡片（题目数/掌握率/错题数/连续天数）
+- 分类快捷入口
+- 热门题目推荐
+- 答题数据趋势图（ECharts）
 
-### 3. 题库列表 (QuestionList)
-- 按分类筛选
-- 按难度筛选
-- 分页展示
-- 跳转到题目详情
+### 题库列表 (QuestionList)
+- 分类 + 难度筛选
+- 关键词搜索
+- 分页浏览
+- 7 种题型标签（单选/多选/判断/填空/简答/编程/情景）
 
-### 4. 题目详情 (QuestionDetail)
-- 题目内容展示
-- 答案输入
-- 查看参考答案
-- 收藏功能
-- 加入错题本
+### 在线刷题 (Practice)
+- 按分类/难度/题型筛选出题
+- 全随机模式
+- 7 种答题交互（单选/多选/判断/填空/简答/编程/情景）
+- 上一题/下一题导航
+- 查看答案 + 收藏
+- 进度点阵导航
 
-### 5. 在线刷题 (Practice)
-- 题目列表导航
-- 上一题/下一题
-- 答案提交
-- 查看答案
-- 收藏/取消收藏
-- 进度展示
+### 社区文章 (community/)
+- 文章列表 + 话题筛选
+- Markdown 编辑器撰写文章
+- 文章详情 + 树形评论
+- 点赞（原子计数）+ 收藏
+- 文章系列管理
 
-### 6. 错题本 (WrongQuestions)
-- 错题列表展示
-- 复习次数统计
-- 再做一次
-- 标记为已掌握
-- 移除错题
+### 实时通知 (NotificationBell)
+- SSE 实时推送新通知（Toast 弹出）
+- 通知下拉面板（最新 5 条）
+- 标记已读/全部已读
+- 通知类型：评论、点赞、关注
 
-### 7. 个人中心 (Profile)
-- 用户信息展示
-- 信息修改
-- 密码修改
-- 学习统计
-- 我的收藏
-- 退出登录
+### 个人中心 (Profile)
+- 用户信息 + GitHub 风格贡献热力图
+- 文章管理（发布/草稿）
+- 学习统计 + 答题趋势
 
-## API接口
-
-### 用户接口
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/users | 获取所有用户 |
-| GET | /api/users/{id} | 根据ID获取用户 |
-| GET | /api/users/username/{username} | 根据用户名获取用户 |
-| POST | /api/users | 创建用户 |
-| PUT | /api/users/{id} | 更新用户 |
-| DELETE | /api/users/{id} | 删除用户 |
-
-### 分类接口
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/categories | 获取所有分类 |
-| GET | /api/categories/{id} | 根据ID获取分类 |
-| POST | /api/categories | 创建分类 |
-| PUT | /api/categories/{id} | 更新分类 |
-| DELETE | /api/categories/{id} | 删除分类 |
-
-### 题目接口
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/questions | 获取题目列表（分页） |
-| GET | /api/questions/{id} | 获取题目详情 |
-| GET | /api/questions/random | 随机获取题目 |
-| GET | /api/questions/search | 搜索题目 |
-| POST | /api/questions | 创建题目 |
-| PUT | /api/questions/{id} | 更新题目 |
-| DELETE | /api/questions/{id} | 删除题目 |
-
-### 学习进度接口
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/progress | 获取用户进度 |
-| GET | /api/progress/question | 获取指定题目进度 |
-| GET | /api/progress/wrong | 获取错题列表 |
-| GET | /api/progress/favorites | 获取收藏列表 |
-| GET | /api/progress/statistics | 获取统计信息 |
-| POST | /api/progress | 更新进度 |
-| DELETE | /api/progress/reset | 重置进度 |
-
-## Axios封装
-
-`src/utils/request.js` 实现了以下功能：
-
-1. **请求拦截器**
-   - 自动在请求头添加 `Authorization: Bearer {token}`
-   - 从 localStorage 获取 token
-
-2. **响应拦截器**
-   - 统一处理返回格式 `{code, msg, data}`
-   - code !== 200 时显示错误提示
-   - 401 响应时弹出重新登录确认框
-   - 403/404/500 等错误码处理
-
-3. **错误处理**
-   - 业务异常（BusinessException）
-   - 参数校验异常（MethodArgumentNotValidException）
-   - 系统未知异常
-
-## 路由守卫
-
-`src/router/index.js` 实现了路由守卫功能：
-
-- 未登录状态下访问需要认证的页面 → 重定向到登录页
-- 已登录状态下访问登录页 → 重定向到首页
-- 动态更新页面标题
-
-需要认证的页面（在 router 配置中添加 `meta: { requiresAuth: true }`）：
-- 首页 /questions
-- 题库列表 /questions
-- 刷题页 /practice
-- 错题本 /wrong
-- 个人中心 /profile
-
-## 状态管理
-
-### User Store
-```javascript
-state: {
-  token: string,      // 登录令牌
-  user: object,      // 用户信息
-  isLoggedIn: boolean // 登录状态
-}
-
-actions: {
-  login(loginForm)    // 登录
-  logout()           // 登出
-  updateUser(data)    // 更新用户信息
-}
-```
-
-### App Store
-```javascript
-state: {
-  loading: boolean,   // 全局Loading状态
-  loadingText: string // Loading文字
-}
-
-actions: {
-  setLoading(loading, text)
-}
-```
-
-## localStorage存储
-
-| key | 说明 |
-|-----|------|
-| token | 登录令牌 |
-| user | 用户信息JSON |
-| remember_username | 记住的用户名 |
-| remember_password | 记住的密码 |
+### 数据统计 (Statistics)
+- 答题正确率趋势（ECharts 折线图）
+- 分类分布（饼图）
+- 文章浏览量趋势
+- 粉丝增长趋势
 
 ## 启动项目
 
@@ -225,7 +144,7 @@ actions: {
 # 安装依赖
 npm install
 
-# 开发模式
+# 开发模式（端口 3000，API 代理到 :8080）
 npm run dev
 
 # 构建生产版本
@@ -235,76 +154,45 @@ npm run build
 npm run preview
 ```
 
-## Docker 部署
+## 代理配置
 
-```bash
-# 从项目根目录构建镜像
-docker compose build frontend
-
-# 或一键启动全栈服务
-docker compose up -d
-
-# 访问 http://localhost:3000
-```
-
-前端镜像基于 `nginx:alpine`，生产环境通过 nginx 反向代理 `/api` 到后端，SSE 连接保持常开。
-
-## 持续集成
-
-本仓库已配置 GitHub Actions CI，每次 push 或 PR 到 `main` 分支时自动执行：
-- `npm ci` — 精确安装依赖
-- `npm run build` — 构建生产产物
-
-配置位于 `.github/workflows/ci.yml`。
+开发环境下 `vite.config.ts` 将 `/api` 代理到 `http://localhost:8080`。
 
 ## 构建优化
 
-- **分包策略**：ECharts、md-editor-v3、Element Plus 拆分为独立 chunk（`manualChunks`），其余 `node_modules` 归入 `vendor` chunk，减少主 bundle 体积并利用浏览器缓存
+- **分包策略**: ECharts、md-editor-v3、Element Plus 拆分为独立 chunk（`manualChunks`），减少首屏加载
+- **懒加载**: 社区页面路由使用动态 import
 
-## 配置说明
+## Docker 部署
 
-### 环境变量 (.env)
-
-```env
-VITE_APP_TITLE=面试刷题系统
-VITE_API_BASE_URL=/api
+```bash
+# 从项目根目录一键启动全栈
+docker compose up -d --build
+# 前端: http://localhost:3000
 ```
 
-### 代理配置 (vite.config.js)
-
-开发环境下，API请求会被代理到 `http://localhost:8080`。
+前端基于 `nginx:alpine`，生产环境通过 nginx 反向代理 `/api` 到后端。
 
 ## 与后端对接
 
-1. 后端必须先启动（端口8080）
-2. 后端返回格式：
-   ```json
-   {
-     "code": 200,
-     "msg": "success",
-     "data": {}
-   }
-   ```
-3. 前端会自动处理统一的错误响应
+1. 后端必须先启动（端口 8080）
+2. 统一响应格式: `{ code, msg, data }`
+3. JWT 令牌存储在 `localStorage.token`，Axios 拦截器自动附加
+4. 401 响应自动弹出重新登录提示
+5. SSE 连接: `EventSource(/api/notifications/subscribe?token=xxx)`
 
 ## 功能特性
 
-- 响应式布局，支持移动端
-- 表单验证
-- 统一错误提示
-- 全局Loading
-- 路由权限控制
-- 持久化登录状态
-- 分页支持
-- 程序员风格UI设计
-
-## 后续可扩展功能
-
-1. 真正的JWT登录认证
-2. 用户注册功能
-3. 题目搜索功能
-4. 学习计划制定
-5. 知识点标签管理
-6. 刷题排行榜
-7. 数据可视化统计
-8. 移动端适配优化
+- ✅ 响应式布局（移动端适配）
+- ✅ JWT 认证 + 路由守卫
+- ✅ SSE 实时通知推送
+- ✅ GitHub 风格贡献热力图
+- ✅ Markdown 文章编辑器
+- ✅ 7 种题型答题交互
+- ✅ 树形评论系统
+- ✅ 关注/粉丝/黑名单
+- ✅ 文章系列管理
+- ✅ ECharts 数据可视化
+- ✅ 设计令牌系统（柔和粉蓝调色板）
+- ✅ 3D 卡片倾斜效果（v-tilt 指令）
+- ✅ SEO 支持（@unhead/vue + 爬虫预渲染）
