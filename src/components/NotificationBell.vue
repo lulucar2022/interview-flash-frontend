@@ -65,6 +65,7 @@ const list = ref([])
 const unreadCount = ref(0)
 let eventSource = null
 let reconnectTimer = null
+let sseTempIdCounter = 0
 
 const typeIcon = (type) => {
   if (type === 'like') return '👍'
@@ -122,9 +123,9 @@ const handleClick = async (item) => {
       // ignore
     }
   }
-  if (item.type === 'like' || item.type === 'comment') {
+  if ((item.type === 'like' || item.type === 'comment') && item.targetId) {
     router.push(`/articles/${item.targetId}`)
-  } else if (item.type === 'follow') {
+  } else if (item.type === 'follow' && item.fromUserId) {
     router.push(`/author/${item.fromUserId}`)
   }
 }
@@ -151,13 +152,13 @@ const connectSSE = () => {
       unreadCount.value++
       // 推入列表顶部
       list.value.unshift({
-        id: Date.now(),
+        id: data.id || --sseTempIdCounter,
         type: data.type,
         summary: data.summary,
         isRead: false,
         fromUserId: data.fromUserId,
         fromUserNickname: data.fromUserNickname,
-        fromUserAvatar: null,
+        fromUserAvatar: data.fromUserAvatar || null,
         targetId: data.targetId,
         createdAt: data.createdAt,
       })

@@ -118,9 +118,9 @@ const handleClick = async (item) => {
       // ignore
     }
   }
-  if (item.type === 'like' || item.type === 'comment') {
+  if ((item.type === 'like' || item.type === 'comment') && item.targetId) {
     router.push(`/articles/${item.targetId}`)
-  } else if (item.type === 'follow') {
+  } else if (item.type === 'follow' && item.fromUserId) {
     router.push(`/author/${item.fromUserId}`)
   }
 }
